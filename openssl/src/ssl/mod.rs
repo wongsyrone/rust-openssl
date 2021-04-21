@@ -652,6 +652,82 @@ pub fn select_next_proto<'a>(server: &[u8], client: &'a [u8]) -> Option<&'a [u8]
     }
 }
 
+bitflags! {
+    /// The SslAlertInformationContext argument specifies information about where (in which context) the callback function was called.
+    /// If SslAlertInformationCode is 0, an error condition occurred. If an alert is handled,
+    /// SSL_CB_ALERT is set and SslAlertInformationCode specifies the alert information.
+    pub struct SslAlertInformationContext: c_int {
+        /// Callback has been called to indicate state change inside a loop.
+        const LOOP = ffi::SSL_CB_LOOP;
+        const EXIT = ffi::SSL_CB_EXIT;
+        const READ = ffi::SSL_CB_READ;
+        const WRITE = ffi::SSL_CB_WRITE;
+        const ALERT = ffi::SSL_CB_ALERT;
+
+        const HANDSHAKE_START = ffi::SSL_CB_HANDSHAKE_START;
+        const HANDSHAKE_DONE  = ffi::SSL_CB_HANDSHAKE_DONE;
+
+        const SSL_ST_CONNECT = ffi::SSL_ST_CONNECT;
+        const SSL_ST_ACCEPT = ffi::SSL_ST_ACCEPT;
+        const SSL_ST_MASK = ffi::SSL_ST_MASK;
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct SslAlertInformationCode(c_int);
+
+impl SslAlertInformationCode {
+    /// Creates a `SslAlertInformationCode` from an integer representation.
+    pub fn from_raw(value: c_int) -> Self {
+        Self(value)
+    }
+
+    /// Returns the integer representation of `SslAlertInformationCode`.
+    pub fn as_raw(&self) -> c_int {
+        self.0
+    }
+}
+
+#[cfg(ossl111)]
+pub fn ssl_alert_type_string(val: SslAlertInformationCode) -> &'static str {
+    let alert = unsafe {
+        let ptr = ffi::SSL_alert_type_string(val.0);
+        CStr::from_ptr(ptr as *const _)
+    };
+
+    str::from_utf8(alert.to_bytes()).unwrap()
+}
+
+#[cfg(ossl111)]
+pub fn ssl_alert_type_string_long(val: SslAlertInformationCode) -> &'static str {
+    let alert = unsafe {
+        let ptr = ffi::SSL_alert_type_string_long(val.0);
+        CStr::from_ptr(ptr as *const _)
+    };
+
+    str::from_utf8(alert.to_bytes()).unwrap()
+}
+
+#[cfg(ossl111)]
+pub fn ssl_alert_desc_string(val: SslAlertInformationCode) -> &'static str {
+    let alert = unsafe {
+        let ptr = ffi::SSL_alert_desc_string(val.0);
+        CStr::from_ptr(ptr as *const _)
+    };
+
+    str::from_utf8(alert.to_bytes()).unwrap()
+}
+
+#[cfg(ossl111)]
+pub fn ssl_alert_desc_string_long(val: SslAlertInformationCode) -> &'static str {
+    let alert = unsafe {
+        let ptr = ffi::SSL_alert_desc_string_long(val.0);
+        CStr::from_ptr(ptr as *const _)
+    };
+
+    str::from_utf8(alert.to_bytes()).unwrap()
+}
+
 /// A builder for `SslContext`s.
 pub struct SslContextBuilder(SslContext);
 
@@ -1546,6 +1622,16 @@ impl SslContextBuilder {
         unsafe {
             self.set_ex_data(SslContext::cached_ex_index::<F>(), callback);
             ffi::SSL_CTX_set_keylog_callback(self.as_ptr(), Some(callbacks::raw_keylog::<F>));
+        }
+    }
+
+    pub fn set_info_callback<F>(&mut self, callback: F)
+    where
+        F: Fn(&SslRef, SslAlertInformationContext, SslAlertInformationCode) + 'static + Sync + Send,
+    {
+        unsafe {
+            self.set_ex_data(SslContext::cached_ex_index::<F>(), callback);
+            ffi::SSL_CTX_set_info_callback(self.as_ptr(), Some(callbacks::raw_info::<F>));
         }
     }
 
@@ -2521,6 +2607,16 @@ impl SslRef {
             // this needs to be in an Arc since the callback can register a new callback!
             self.set_ex_data(Ssl::cached_ex_index(), Arc::new(verify));
             ffi::SSL_set_verify(self.as_ptr(), mode.bits as c_int, Some(ssl_raw_verify::<F>));
+        }
+    }
+
+    pub fn set_info_callback<F>(&mut self, info: F)
+    where
+        F: Fn(&SslRef, SslAlertInformationContext, SslAlertInformationCode) + 'static + Sync + Send,
+    {
+        unsafe {
+            self.set_ex_data(Ssl::cached_ex_index(), Arc::new(info));
+            ffi::SSL_set_info_callback(self.as_ptr(), Some(raw_info_ssl::<F>))
         }
     }
 
