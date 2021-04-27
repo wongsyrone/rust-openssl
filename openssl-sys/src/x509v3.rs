@@ -84,6 +84,23 @@ extern "C" {
     pub fn X509_check_issued(issuer: *mut X509, subject: *mut X509) -> c_int;
     pub fn X509_verify(req: *mut X509, pkey: *mut EVP_PKEY) -> c_int;
 
+    pub fn X509_check_host(
+        x: *mut X509,
+        chk: *const c_char,
+        chklen: size_t,
+        flags: c_uint,
+        peername: *mut *mut c_char,
+    ) -> c_int;
+    pub fn X509_check_email(
+        x: *mut X509,
+        chk: *const c_char,
+        chklen: size_t,
+        flags: c_uint,
+    ) -> c_int;
+    pub fn X509_check_ip(x: *mut X509, chk: *const c_uchar, chklen: size_t, flags: c_uint)
+        -> c_int;
+    pub fn X509_check_ip_asc(x: *mut X509, ipasc: *const c_char, flags: c_uint) -> c_int;
+
     pub fn X509V3_set_nconf(ctx: *mut X509V3_CTX, conf: *mut CONF);
 
     pub fn X509V3_set_ctx(

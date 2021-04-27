@@ -107,6 +107,9 @@ pub use crate::ssl::connector::{
 };
 pub use crate::ssl::error::{Error, ErrorCode, HandshakeError};
 
+#[cfg(ossl111)]
+pub use crate::ssl::connector::{setup_boost_asio_verify, setup_boost_asio_verify_hostname};
+
 mod bio;
 mod callbacks;
 mod connector;
