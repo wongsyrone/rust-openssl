@@ -34,6 +34,7 @@ use crate::ssl::SslRef;
 use crate::stack::{Stack, StackRef, Stackable};
 use crate::string::OpensslString;
 use crate::util::{ForeignTypeExt, ForeignTypeRefExt};
+use crate::x509::verify::X509CheckFlags;
 use crate::{cvt, cvt_n, cvt_p};
 
 #[cfg(any(ossl102, libressl261))]
@@ -592,6 +593,49 @@ impl X509Ref {
         unsafe {
             let r = ffi::X509_get_serialNumber(self.as_ptr());
             Asn1IntegerRef::from_const_ptr_opt(r).expect("serial number must not be null")
+        }
+    }
+
+    pub fn check_host(&self, host: &str, flag: X509CheckFlags) -> Result<bool, ErrorStack> {
+        let h = CString::new(host).unwrap();
+        unsafe {
+            let mut peername: *mut libc::c_char = ptr::null_mut();
+            let peername_handle: *mut *mut libc::c_char = &mut peername;
+            let r = cvt(ffi::X509_check_host(
+                self.as_ptr(),
+                h.as_ptr(),
+                host.len() as libc::size_t,
+                flag.bits(),
+                peername_handle,
+            ))
+            .map(|r| r == 1);
+            cfg_if! {
+                if #[cfg(ossl110)] {
+                    ffi::CRYPTO_free(
+                        peername as *mut libc::c_void,
+                        concat!(file!(), "\0").as_ptr() as *const _,
+                        line!() as c_int,
+                    );
+                } else {
+                    ffi::CRYPTO_free(
+                        peername as *mut libc::c_void,
+                    );
+                }
+            }
+            // TODO: don't know whether we should avoid drop peername again
+            r
+        }
+    }
+
+    pub fn check_ip_asc(&self, ipstr: &str, flag: X509CheckFlags) -> Result<bool, ErrorStack> {
+        let ip_c = CString::new(ipstr).unwrap();
+        unsafe {
+            cvt(ffi::X509_check_ip_asc(
+                self.as_ptr(),
+                ip_c.as_ptr(),
+                flag.bits(),
+            ))
+            .map(|r| r == 1)
         }
     }
 
