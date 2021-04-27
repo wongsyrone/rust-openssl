@@ -596,3 +596,89 @@ cfg_if! {
         }
     }
 }
+
+cfg_if! {
+    if #[cfg(ossl111)] {
+        pub fn setup_boost_asio_verify(ctx: &mut SslContextBuilder) {
+            ctx.set_verify_callback(SslVerifyMode::PEER, boost_asio_verify::verify_callback);
+        }
+
+        pub fn setup_boost_asio_verify_hostname(ssl: &mut Ssl, domain: &str) -> Result<(), ErrorStack> {
+            let domain = domain.to_string();
+            let hostname_idx = boost_asio_verify::try_get_hostname_idx()?;
+            ssl.set_ex_data(*hostname_idx, domain);
+            Ok(())
+        }
+
+        mod boost_asio_verify {
+            use once_cell::sync::OnceCell;
+            use std::net::IpAddr;
+            use std::str;
+
+            use crate::error::ErrorStack;
+            use crate::ex_data::Index;
+            use crate::ssl::Ssl;
+            use crate::x509::{
+                X509Ref, X509StoreContext, X509StoreContextRef, X509VerifyResult, verify::X509CheckFlags
+            };
+
+            static HOSTNAME_IDX: OnceCell<Index<Ssl, String>> = OnceCell::new();
+
+            #[allow(dead_code)]
+            pub fn try_get_hostname_idx() -> Result<&'static Index<Ssl, String>, ErrorStack> {
+                HOSTNAME_IDX.get_or_try_init(Ssl::new_ex_index)
+            }
+
+            #[allow(dead_code)]
+            pub fn verify_callback(preverify_ok: bool, x509_ctx: &mut X509StoreContextRef) -> bool {
+                // Don't bother looking at certificates that have failed pre-verification.
+                if !preverify_ok {
+                    return false;
+                }
+                // We're only interested in checking the certificate at the end of the chain.
+                let depth = x509_ctx.error_depth();
+                if depth > 0 {
+                    return true;
+                }
+                // Try converting the host name to an address. If it is an address then we
+                // need to look for an IP address in the certificate rather than a host name.
+                let hostname_idx = try_get_hostname_idx().expect("failed to initialize hostname index");
+                let ok = match (
+                    x509_ctx.current_cert(),
+                    X509StoreContext::ssl_idx()
+                        .ok()
+                        .and_then(|idx| x509_ctx.ex_data(idx))
+                        .and_then(|ssl| ssl.ex_data(*hostname_idx)),
+                ) {
+                    (Some(x509), Some(domain)) => boost_asio_verify_hostname(domain, &x509),
+                    _ => true,
+                };
+
+                if !ok {
+                    x509_ctx.set_error(X509VerifyResult::APPLICATION_VERIFICATION);
+                }
+
+                ok
+            }
+
+            #[allow(dead_code)]
+            fn boost_asio_verify_hostname(domain: &str, cert: &X509Ref) -> bool {
+                let flag :X509CheckFlags;
+                unsafe {
+                    flag = X509CheckFlags::from_bits_unchecked(0);
+                }
+                debug_assert_eq!(flag.bits(), 0);
+                match domain.parse::<IpAddr>() {
+                    Ok(_) => match cert.check_ip_asc(domain, flag) {
+                        Ok(ret) => ret,
+                        Err(_e) => false,
+                    },
+                    Err(_) => match cert.check_host(domain, flag) {
+                        Ok(ret) => ret,
+                        Err(_e) => false,
+                    },
+                }
+            }
+        }
+    }
+}
