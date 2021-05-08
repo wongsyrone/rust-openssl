@@ -72,7 +72,7 @@ impl X509StoreContext {
     pub fn new() -> Result<X509StoreContext, ErrorStack> {
         unsafe {
             ffi::init();
-            cvt_p(ffi::X509_STORE_CTX_new()).map(X509StoreContext)
+            cvt_p(ffi::X509_STORE_CTX_new()).map(|ptr| X509StoreContext::from_ptr(ptr))
         }
     }
 }
@@ -227,7 +227,7 @@ impl X509Builder {
     pub fn new() -> Result<X509Builder, ErrorStack> {
         unsafe {
             ffi::init();
-            cvt_p(ffi::X509_new()).map(|p| X509Builder(X509(p)))
+            cvt_p(ffi::X509_new()).map(|p| X509Builder(X509::from_ptr(p)))
         }
     }
 
@@ -724,7 +724,7 @@ impl X509 {
 
                     return Err(ErrorStack::get());
                 } else {
-                    certs.push(X509(r));
+                    certs.push(X509::from_ptr(r));
                 }
             }
 
@@ -824,7 +824,8 @@ impl X509Extension {
             let name = name.as_ptr() as *mut _;
             let value = value.as_ptr() as *mut _;
 
-            cvt_p(ffi::X509V3_EXT_nconf(conf, context, name, value)).map(X509Extension)
+            cvt_p(ffi::X509V3_EXT_nconf(conf, context, name, value))
+                .map(|ptr| X509Extension::from_ptr(ptr))
         }
     }
 
@@ -849,7 +850,8 @@ impl X509Extension {
             let name = name.as_raw();
             let value = value.as_ptr() as *mut _;
 
-            cvt_p(ffi::X509V3_EXT_nconf_nid(conf, context, name, value)).map(X509Extension)
+            cvt_p(ffi::X509V3_EXT_nconf_nid(conf, context, name, value))
+                .map(|ptr| X509Extension::from_ptr(ptr))
         }
     }
 }
@@ -862,7 +864,7 @@ impl X509NameBuilder {
     pub fn new() -> Result<X509NameBuilder, ErrorStack> {
         unsafe {
             ffi::init();
-            cvt_p(ffi::X509_NAME_new()).map(|p| X509NameBuilder(X509Name(p)))
+            cvt_p(ffi::X509_NAME_new()).map(|p| X509NameBuilder(X509Name::from_ptr(p)))
         }
     }
 
@@ -1115,7 +1117,7 @@ impl X509ReqBuilder {
     pub fn new() -> Result<X509ReqBuilder, ErrorStack> {
         unsafe {
             ffi::init();
-            cvt_p(ffi::X509_REQ_new()).map(|p| X509ReqBuilder(X509Req(p)))
+            cvt_p(ffi::X509_REQ_new()).map(|p| X509ReqBuilder(X509Req::from_ptr(p)))
         }
     }
 
