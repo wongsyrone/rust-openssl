@@ -49,19 +49,19 @@ jobs:
           override: true
           default: true
           profile: default
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/index
           key: index-${{ runner.os }}-${{ github.run_number }}
           restore-keys: |
             index-${{ runner.os }}-
       - run: cargo generate-lockfile
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/cache
           key: registry-${{ runner.os }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
       - run: cargo fetch
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: target
           key: target-${{ github.job }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
@@ -81,19 +81,19 @@ jobs:
           override: true
           default: true
           profile: default
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/index
           key: index-${{ runner.os }}-${{ github.run_number }}
           restore-keys: |
             index-${{ runner.os }}-
       - run: cargo generate-lockfile
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/cache
           key: registry-${{ runner.os }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
       - run: cargo fetch
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: target
           key: target-${{ github.job }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
@@ -118,19 +118,19 @@ jobs:
           profile: default
       - run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
       - run: vcpkg install openssl:x64-windows
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/index
           key: index-${{ runner.os }}-${{ github.run_number }}
           restore-keys: |
             index-${{ runner.os }}-
       - run: cargo generate-lockfile
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/cache
           key: registry-${{ runner.os }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
       - run: cargo fetch
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: target
           key: target-${{ github.job }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
@@ -152,19 +152,19 @@ jobs:
           override: true
           default: true
           profile: default
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/index
           key: index-${{ runner.os }}-${{ github.run_number }}
           restore-keys: |
             index-${{ runner.os }}-
       - run: cargo generate-lockfile
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.cargo/registry/cache
           key: registry-${{ runner.os }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
       - run: cargo fetch
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v2.1.6
         with:
           path: target
           key: target-${{ github.job }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
@@ -232,7 +232,7 @@ jobs:
 
             sudo apt-get update
             sudo apt-get install -y $packages
-        - uses: actions/cache@v2.1.5
+        - uses: actions/cache@v2.1.6
           with:
             path: /opt/openssl
             key: openssl-${{ matrix.target }}-${{ matrix.library.name }}-${{ matrix.library.version }}
@@ -285,19 +285,19 @@ jobs:
           if: matrix.library.version != 'vendored' && !steps.openssl-cache.outputs.cache-hit
         - run: echo "RUST_TEST_THREADS=1" >> $GITHUB_ENV
           if: matrix.target == 'arm-unknown-linux-gnueabihf'
-        - uses: actions/cache@v2.1.5
+        - uses: actions/cache@v2.1.6
           with:
             path: ~/.cargo/registry/index
             key: index-${{ runner.os }}-${{ github.run_number }}
             restore-keys: |
               index-${{ runner.os }}-
         - run: cargo generate-lockfile
-        - uses: actions/cache@v2.1.5
+        - uses: actions/cache@v2.1.6
           with:
             path: ~/.cargo/registry/cache
             key: registry-${{ runner.os }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
         - run: cargo fetch
-        - uses: actions/cache@v2.1.5
+        - uses: actions/cache@v2.1.6
           with:
             path: target
             key: target-${{ matrix.target }}-${{ matrix.library.name }}-${{ matrix.library.version }}-${{ steps.install-rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
