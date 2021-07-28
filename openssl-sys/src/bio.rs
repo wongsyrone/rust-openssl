@@ -101,10 +101,20 @@ extern "C" {
         biom: *mut BIO_METHOD,
         write: unsafe extern "C" fn(*mut BIO, *const c_char, c_int) -> c_int,
     ) -> c_int;
+    #[cfg(ossl111)]
+    pub fn BIO_meth_set_write_ex(
+        biom: *mut BIO_METHOD,
+        bwrite: Option<unsafe extern "C" fn(*mut BIO, *const c_char, size_t, *mut size_t) -> c_int>,
+    ) -> c_int;
     #[cfg(any(ossl110, libressl273))]
     pub fn BIO_meth_set_read(
         biom: *mut BIO_METHOD,
         read: unsafe extern "C" fn(*mut BIO, *mut c_char, c_int) -> c_int,
+    ) -> c_int;
+    #[cfg(ossl111)]
+    pub fn BIO_meth_set_read_ex(
+        biom: *mut BIO_METHOD,
+        bread: Option<unsafe extern "C" fn(*mut BIO, *mut c_char, size_t, *mut size_t) -> c_int>,
     ) -> c_int;
     #[cfg(any(ossl110, libressl273))]
     pub fn BIO_meth_set_puts(
