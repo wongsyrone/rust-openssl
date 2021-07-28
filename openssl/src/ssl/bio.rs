@@ -3,7 +3,7 @@ use ffi::{
     self, BIO_clear_retry_flags, BIO_new, BIO_set_retry_read, BIO_set_retry_write, BIO,
     BIO_CTRL_DGRAM_QUERY_MTU, BIO_CTRL_FLUSH,
 };
-use libc::{c_char, c_int, c_long, c_void, strlen};
+use libc::{c_char, c_int, c_long, c_void, size_t, strlen};
 use std::any::Any;
 use std::io;
 use std::io::prelude::*;
@@ -85,7 +85,8 @@ unsafe fn state<'a, S: 'a>(bio: *mut BIO) -> &'a mut StreamState<S> {
     &mut *(BIO_get_data(bio) as *mut _)
 }
 
-unsafe extern "C" fn bwrite<S: Write>(bio: *mut BIO, buf: *const c_char, len: c_int) -> c_int {
+#[cfg(not(any(ossl110, libressl273)))]
+unsafe extern "C" fn bwrite_old<S: Write>(bio: *mut BIO, buf: *const c_char, len: c_int) -> c_int {
     BIO_clear_retry_flags(bio);
 
     let state = state::<S>(bio);
@@ -107,7 +108,90 @@ unsafe extern "C" fn bwrite<S: Write>(bio: *mut BIO, buf: *const c_char, len: c_
     }
 }
 
-unsafe extern "C" fn bread<S: Read>(bio: *mut BIO, buf: *mut c_char, len: c_int) -> c_int {
+#[cfg(any(ossl110, libressl273))]
+unsafe extern "C" fn bwrite_ex<S: Write>(
+    bio: *mut BIO,
+    buf: *const c_char,
+    blen: size_t,
+    written: *mut size_t,
+) -> c_int {
+    assert!(!buf.is_null());
+    BIO_clear_retry_flags(bio);
+
+    let state = state::<S>(bio);
+    let buf = slice::from_raw_parts(buf as *const _, blen as usize);
+    // empty write as success
+    if buf.is_empty() {
+        return 1;
+    }
+
+    match catch_unwind(AssertUnwindSafe(|| {
+        if Write::is_write_vectored(&state.stream) {
+            const VEC_CHUNK_SIZE: usize = 8;
+            // init with 0
+            *written = 0;
+            // vectored IO
+            let mut slices = buf
+                .chunks(VEC_CHUNK_SIZE)
+                .map(io::IoSlice::new)
+                .collect::<Vec<_>>();
+            let mut part = &mut slices[..];
+
+            while !part.is_empty() {
+                let n = match Write::write_vectored(&mut state.stream, part) {
+                    Ok(n) => n,
+                    Err(ref e) if e.kind() == io::ErrorKind::Interrupted => {
+                        continue;
+                    }
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+                *written += n;
+                let poped_off_num = n / VEC_CHUNK_SIZE;
+                let should_advance_num = n % VEC_CHUNK_SIZE;
+                part = &mut part[poped_off_num..];
+                if let Some(a) = part.first_mut() {
+                    if should_advance_num > 0 {
+                        a.advance(should_advance_num);
+                    }
+                }
+            }
+            Ok(())
+        } else {
+            // non-vectored IO
+            match Write::write(&mut state.stream, buf) {
+                Ok(n) if n > 0 => {
+                    *written = n;
+                    Ok(())
+                }
+                Ok(n) => Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("written {} bytes", n),
+                )),
+                Err(e) => Err(e),
+            }
+        }
+    })) {
+        Ok(r) => match r {
+            Ok(_) => 1,
+            Err(err) => {
+                if retriable_error(&err) {
+                    BIO_set_retry_write(bio);
+                }
+                state.error = Some(err);
+                0
+            }
+        },
+        Err(err) => {
+            state.panic = Some(err);
+            0
+        }
+    }
+}
+
+#[cfg(not(any(ossl110, libressl273)))]
+unsafe extern "C" fn bread_old<S: Read>(bio: *mut BIO, buf: *mut c_char, len: c_int) -> c_int {
     BIO_clear_retry_flags(bio);
 
     let state = state::<S>(bio);
@@ -129,6 +213,88 @@ unsafe extern "C" fn bread<S: Read>(bio: *mut BIO, buf: *mut c_char, len: c_int)
     }
 }
 
+#[cfg(any(ossl110, libressl273))]
+unsafe extern "C" fn bread_ex<S: Read>(
+    bio: *mut BIO,
+    buf: *mut c_char,
+    blen: size_t,
+    readbytes: *mut size_t,
+) -> c_int {
+    assert!(!buf.is_null());
+    BIO_clear_retry_flags(bio);
+
+    let state = state::<S>(bio);
+    let buf = slice::from_raw_parts_mut(buf as *mut _, blen as usize);
+    // empty read as success
+    if buf.is_empty() {
+        return 1;
+    }
+
+    match catch_unwind(AssertUnwindSafe(|| {
+        if Read::is_read_vectored(&state.stream) {
+            const VEC_CHUNK_SIZE: usize = 8;
+            // init with 0
+            *readbytes = 0;
+            // vectored IO
+            let mut slices = buf
+                .chunks_mut(VEC_CHUNK_SIZE)
+                .map(io::IoSliceMut::new)
+                .collect::<Vec<_>>();
+
+            let mut part = &mut slices[..];
+            while !part.is_empty() {
+                let n = match Read::read_vectored(&mut state.stream, part) {
+                    Ok(n) => n,
+                    Err(ref e) if e.kind() == io::ErrorKind::Interrupted => {
+                        continue;
+                    }
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+                *readbytes += n;
+                let poped_off_num = n / VEC_CHUNK_SIZE;
+                let should_advance_num = n % VEC_CHUNK_SIZE;
+                part = &mut part[poped_off_num..];
+                if let Some(a) = part.first_mut() {
+                    if should_advance_num > 0 {
+                        a.advance(should_advance_num);
+                    }
+                }
+            }
+            Ok(())
+        } else {
+            // non-vectored IO
+            match Read::read(&mut state.stream, buf) {
+                Ok(n) if n > 0 => {
+                    *readbytes = n;
+                    Ok(())
+                }
+                Ok(n) => Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("read {} bytes", n),
+                )),
+                Err(e) => Err(e),
+            }
+        }
+    })) {
+        Ok(r) => match r {
+            Ok(_) => 1,
+            Err(err) => {
+                if retriable_error(&err) {
+                    BIO_set_retry_read(bio);
+                }
+                state.error = Some(err);
+                0
+            }
+        },
+        Err(err) => {
+            state.panic = Some(err);
+            0
+        }
+    }
+}
+
 #[allow(clippy::match_like_matches_macro)] // matches macro requires rust 1.42.0
 fn retriable_error(err: &io::Error) -> bool {
     match err.kind() {
@@ -138,7 +304,23 @@ fn retriable_error(err: &io::Error) -> bool {
 }
 
 unsafe extern "C" fn bputs<S: Write>(bio: *mut BIO, s: *const c_char) -> c_int {
-    bwrite::<S>(bio, s, strlen(s) as c_int)
+    cfg_if! {
+        if #[cfg(any(ossl110, libressl273))] {
+            let orig_len = strlen(s);
+            let mut written: size_t = 0;
+            let written_handle: *mut size_t = &mut written as *mut size_t;
+            let ret = bwrite_ex::<S>(bio, s, orig_len, written_handle);
+            if ret == 1 {
+                assert!(ret as usize == orig_len);
+                written as c_int
+            } else {
+                // fail
+                -1
+            }
+        } else {
+            bwrite_old::<S>(bio, s, strlen(s) as c_int)
+        }
+    }
 }
 
 unsafe extern "C" fn ctrl<S: Write>(
@@ -205,8 +387,8 @@ cfg_if! {
                 unsafe {
                     let ptr = cvt_p(ffi::BIO_meth_new(ffi::BIO_TYPE_NONE, b"rust\0".as_ptr() as *const _))?;
                     let method = BIO_METHOD(ptr);
-                    cvt(ffi::BIO_meth_set_write(method.0, bwrite::<S>))?;
-                    cvt(ffi::BIO_meth_set_read(method.0, bread::<S>))?;
+                    cvt(ffi::BIO_meth_set_write_ex(method.0, Some(bwrite_ex::<S>)))?;
+                    cvt(ffi::BIO_meth_set_read_ex(method.0, Some(bread_ex::<S>)))?;
                     cvt(ffi::BIO_meth_set_puts(method.0, bputs::<S>))?;
                     cvt(ffi::BIO_meth_set_ctrl(method.0, ctrl::<S>))?;
                     cvt(ffi::BIO_meth_set_create(method.0, create))?;
@@ -236,8 +418,8 @@ cfg_if! {
                 let ptr = Box::new(ffi::BIO_METHOD {
                     type_: ffi::BIO_TYPE_NONE,
                     name: b"rust\0".as_ptr() as *const _,
-                    bwrite: Some(bwrite::<S>),
-                    bread: Some(bread::<S>),
+                    bwrite: Some(bwrite_old::<S>),
+                    bread: Some(bread_old::<S>),
                     bputs: Some(bputs::<S>),
                     bgets: None,
                     ctrl: Some(ctrl::<S>),
