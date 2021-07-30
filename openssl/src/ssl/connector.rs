@@ -650,7 +650,7 @@ cfg_if! {
                         .and_then(|idx| x509_ctx.ex_data(idx))
                         .and_then(|ssl| ssl.ex_data(*hostname_idx)),
                 ) {
-                    (Some(x509), Some(domain)) => boost_asio_verify_hostname(domain, &x509),
+                    (Some(x509), Some(domain)) => boost_asio_verify_hostname(domain, x509),
                     _ => true,
                 };
 
