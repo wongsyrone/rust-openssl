@@ -246,7 +246,7 @@ impl X509Builder {
     /// Note that the version is zero-indexed; that is, a certificate corresponding to version 3 of
     /// the X.509 standard should pass `2` to this method.
     pub fn set_version(&mut self, version: i32) -> Result<(), ErrorStack> {
-        unsafe { cvt(ffi::X509_set_version(self.0.as_ptr(), version.into())).map(|_| ()) }
+        unsafe { cvt(ffi::X509_set_version(self.0.as_ptr(), version)).map(|_| ()) }
     }
 
     /// Sets the serial number of the certificate.
@@ -1125,7 +1125,7 @@ impl X509ReqBuilder {
     ///
     ///[`X509_REQ_set_version`]: https://www.openssl.org/docs/man1.1.0/crypto/X509_REQ_set_version.html
     pub fn set_version(&mut self, version: i32) -> Result<(), ErrorStack> {
-        unsafe { cvt(ffi::X509_REQ_set_version(self.0.as_ptr(), version.into())).map(|_| ()) }
+        unsafe { cvt(ffi::X509_REQ_set_version(self.0.as_ptr(), version)).map(|_| ()) }
     }
 
     /// Set the issuer name.
