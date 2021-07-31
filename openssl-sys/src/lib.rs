@@ -16,6 +16,7 @@ extern crate libc;
 
 use libc::*;
 
+#[cfg(not(ossl300))]
 pub use aes::*;
 pub use asn1::*;
 pub use bio::*;
@@ -23,6 +24,7 @@ pub use bn::*;
 pub use cms::*;
 pub use conf::*;
 pub use crypto::*;
+#[cfg(not(ossl300))]
 pub use dh::*;
 pub use dsa::*;
 pub use dtls1::*;
@@ -51,9 +53,13 @@ pub use x509::*;
 pub use x509_vfy::*;
 pub use x509v3::*;
 
+#[cfg(ossl300)]
+pub use provider::*;
+
 #[macro_use]
 mod macros;
 
+#[cfg(not(ossl300))]
 mod aes;
 mod asn1;
 mod bio;
@@ -61,6 +67,7 @@ mod bn;
 mod cms;
 mod conf;
 mod crypto;
+#[cfg(not(ossl300))]
 mod dh;
 mod dsa;
 mod dtls1;
@@ -88,6 +95,9 @@ mod types;
 mod x509;
 mod x509_vfy;
 mod x509v3;
+
+#[cfg(ossl300)]
+mod provider;
 
 // FIXME remove
 pub type PasswordCallback = unsafe extern "C" fn(
