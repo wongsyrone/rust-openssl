@@ -11,8 +11,10 @@ extern "C" {
     pub fn BN_CTX_new() -> *mut BN_CTX;
     pub fn BN_CTX_free(ctx: *mut BN_CTX);
     pub fn BN_rand(r: *mut BIGNUM, bits: c_int, top: c_int, bottom: c_int) -> c_int;
+    #[cfg(not(ossl300))]
     pub fn BN_pseudo_rand(r: *mut BIGNUM, bits: c_int, top: c_int, bottom: c_int) -> c_int;
     pub fn BN_rand_range(r: *mut BIGNUM, range: *const BIGNUM) -> c_int;
+    #[cfg(not(ossl300))]
     pub fn BN_pseudo_rand_range(r: *mut BIGNUM, range: *const BIGNUM) -> c_int;
     pub fn BN_new() -> *mut BIGNUM;
     pub fn BN_num_bits(bn: *const BIGNUM) -> c_int;
@@ -118,12 +120,14 @@ extern "C" {
         rem: *const BIGNUM,
         cb: *mut BN_GENCB,
     ) -> c_int;
+    #[cfg(not(ossl300))]
     pub fn BN_is_prime_ex(
         p: *const BIGNUM,
         checks: c_int,
         ctx: *mut BN_CTX,
         cb: *mut BN_GENCB,
     ) -> c_int;
+    #[cfg(not(ossl300))]
     pub fn BN_is_prime_fasttest_ex(
         p: *const BIGNUM,
         checks: c_int,

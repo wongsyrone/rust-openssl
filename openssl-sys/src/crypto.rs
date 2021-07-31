@@ -83,6 +83,7 @@ extern "C" {
     ) -> c_int;
 }
 
+#[cfg(not(ossl300))]
 pub const CRYPTO_LOCK: c_int = 1;
 
 extern "C" {
