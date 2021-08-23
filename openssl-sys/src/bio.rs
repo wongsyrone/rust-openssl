@@ -137,3 +137,34 @@ extern "C" {
         destroy: unsafe extern "C" fn(*mut BIO) -> c_int,
     ) -> c_int;
 }
+
+extern "C" {
+    pub fn BIO_new_bio_pair(
+        bio1: *mut *mut BIO,
+        writebuf1: size_t,
+        bio2: *mut *mut BIO,
+        writebuf2: size_t,
+    ) -> c_int;
+
+    pub fn BIO_ctrl_pending(b: *mut BIO) -> size_t;
+    pub fn BIO_ctrl_wpending(b: *mut BIO) -> size_t;
+
+    pub fn BIO_ctrl_get_write_guarantee(b: *mut BIO) -> size_t;
+    pub fn BIO_ctrl_get_read_request(b: *mut BIO) -> size_t;
+    pub fn BIO_read_ex(
+        b: *mut BIO,
+        data: *mut c_void,
+        dlen: size_t,
+        readbytes: *mut size_t,
+    ) -> c_int;
+    pub fn BIO_write_ex(
+        b: *mut BIO,
+        data: *const c_void,
+        dlen: size_t,
+        written: *mut size_t,
+    ) -> c_int;
+    pub fn BIO_nread0(bio: *mut BIO, buf: *mut *mut c_char) -> c_int;
+    pub fn BIO_nread(bio: *mut BIO, buf: *mut *mut c_char, num: c_int) -> c_int;
+    pub fn BIO_nwrite0(bio: *mut BIO, buf: *mut *mut c_char) -> c_int;
+    pub fn BIO_nwrite(bio: *mut BIO, buf: *mut *mut c_char, num: c_int) -> c_int;
+}

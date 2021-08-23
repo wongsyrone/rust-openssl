@@ -35,8 +35,7 @@ fn ctx(method: SslMethod) -> Result<SslContextBuilder, ErrorStack> {
 
     ctx.set_options(opts);
 
-    let mut mode =
-        SslMode::AUTO_RETRY | SslMode::ACCEPT_MOVING_WRITE_BUFFER | SslMode::ENABLE_PARTIAL_WRITE;
+    let mut mode = SslMode::ACCEPT_MOVING_WRITE_BUFFER | SslMode::ENABLE_PARTIAL_WRITE;
 
     // This is quite a useful optimization for saving memory, but historically
     // caused CVEs in OpenSSL pre-1.0.1h, according to
