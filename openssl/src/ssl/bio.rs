@@ -3,6 +3,7 @@ use ffi::{
     self, BIO_clear_retry_flags, BIO_new, BIO_set_retry_read, BIO_set_retry_write, BIO,
     BIO_CTRL_DGRAM_QUERY_MTU, BIO_CTRL_FLUSH,
 };
+use foreign_types::ForeignType;
 #[cfg(ossl111)]
 use libc::size_t;
 use libc::{c_char, c_int, c_long, c_void, strlen};
@@ -15,6 +16,7 @@ use std::slice;
 
 use crate::cvt_p;
 use crate::error::ErrorStack;
+use crate::ssl::Ssl;
 
 pub struct StreamState<S> {
     pub stream: S,
@@ -341,6 +343,68 @@ unsafe extern "C" fn destroy<S>(bio: *mut BIO) -> c_int {
     BIO_set_data(bio, ptr::null_mut());
     BIO_set_init(bio, 0);
     1
+}
+
+struct BioPair {
+    // Both halves must usually by handled by the same application thread
+    // since no locking is done on the internal data structures.
+    network_bio: *mut ffi::BIO,
+    ssl_engine_internal_bio: *mut ffi::BIO,
+}
+
+impl BioPair {
+    pub fn new(s: &Ssl) -> Result<BioPair, ErrorStack> {
+        unsafe {
+            let mut ssl_engine_internal_bio: *mut ffi::BIO = ptr::null_mut();
+            let mut network_bio: *mut ffi::BIO = ptr::null_mut();
+            cvt(ffi::BIO_new_bio_pair(
+                &mut ssl_engine_internal_bio as *mut _,
+                0, // 0 to make it choose a buffer size sutable for the TLS protocol
+                &mut network_bio as *mut _,
+                0,
+            ))?;
+            ffi::SSL_set_bio(s.as_ptr(), ssl_engine_internal_bio, ssl_engine_internal_bio);
+            std::mem::forget(ssl_engine_internal_bio); // will free when SSL is freed
+            Ok(BioPair {
+                network_bio,
+                ssl_engine_internal_bio,
+            })
+        }
+    }
+
+    fn read_from_underlying_stream(&mut self) -> Result<usize, ErrorStack> {
+        unsafe {
+            let mut buf = ptr::null_mut();
+            let mut n = 0;
+            // how many bytes can we write to SSL engine
+            let ret = ffi::BIO_write_ex(self.network_bio, &mut buf, BUF_SIZE);
+            if ret > 0 {
+                n = ret as usize;
+            }
+            Ok(n)
+        }
+    }
+
+    fn write_to_underlying_stream(&mut self, buf: &[u8]) -> Result<usize, ErrorStack> {
+        unsafe {
+            let mut n = 0;
+            // how many bytes can we read from SSL engine
+            let ret = ffi::BIO_read_ex(self.network_bio, buf, buf.len());
+            if ret > 0 {
+                n = ret as usize;
+            }
+            Ok(n)
+        }
+    }
+}
+
+impl Drop for BioPair {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::BIO_free_all(self.network_bio);
+            ffi::BIO_free_all(self.ssl_engine_internal_bio);
+        }
+    }
 }
 
 cfg_if! {
