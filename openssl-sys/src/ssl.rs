@@ -74,7 +74,7 @@ cfg_if! {
 
 pub const SSL_OP_LEGACY_SERVER_CONNECT: ssl_op_type!() = 0x00000004;
 cfg_if! {
-    if #[cfg(libressl261)] {
+    if #[cfg(libressl)] {
         pub const SSL_OP_TLSEXT_PADDING: ssl_op_type!() = 0x0;
     } else if #[cfg(any(ossl102, libressl))] {
         pub const SSL_OP_TLSEXT_PADDING: ssl_op_type!() = 0x10;
@@ -162,7 +162,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(libressl261)] {
+    if #[cfg(libressl)] {
         pub const SSL_OP_CRYPTOPRO_TLSEXT_BUG: ssl_op_type!() = 0x0;
     } else {
         pub const SSL_OP_CRYPTOPRO_TLSEXT_BUG: ssl_op_type!() = 0x80000000;
@@ -181,10 +181,8 @@ cfg_if! {
             | SSL_OP_LEGACY_SERVER_CONNECT
             | SSL_OP_TLSEXT_PADDING
             | SSL_OP_SAFARI_ECDHE_ECDSA_BUG;
-    } else if #[cfg(libressl261)] {
-        pub const SSL_OP_ALL: ssl_op_type!() = 0x4;
     } else if #[cfg(libressl)] {
-        pub const SSL_OP_ALL: ssl_op_type!() = 0x80000014;
+        pub const SSL_OP_ALL: ssl_op_type!() = 0x4;
     } else {
         pub const SSL_OP_ALL: ssl_op_type!() = 0x80000BFF;
     }
@@ -221,10 +219,8 @@ cfg_if! {
         pub const SSL_OP_SSLEAY_080_CLIENT_DH_BUG: ssl_op_type!() = 0x0;
         pub const SSL_OP_TLS_D5_BUG: ssl_op_type!() = 0x0;
         pub const SSL_OP_TLS_BLOCK_PADDING_BUG: ssl_op_type!() = 0x0;
-        #[cfg(libressl261)]
+        #[cfg(libressl)]
         pub const SSL_OP_SINGLE_ECDH_USE: ssl_op_type!() = 0x0;
-        #[cfg(not(libressl261))]
-        pub const SSL_OP_SINGLE_ECDH_USE: ssl_op_type!() = 0x00080000;
         pub const SSL_OP_SINGLE_DH_USE: ssl_op_type!() = 0x00100000;
         pub const SSL_OP_NO_SSLv2: ssl_op_type!() = 0x0;
     }
@@ -357,13 +353,13 @@ pub const SSL_CTRL_GET_PEER_TMP_KEY: c_int = 109;
 pub const SSL_CTRL_SET_DH_AUTO: c_int = 118;
 #[cfg(ossl110)]
 pub const SSL_CTRL_GET_EXTMS_SUPPORT: c_int = 122;
-#[cfg(any(ossl110, libressl261))]
+#[cfg(any(ossl110, libressl))]
 pub const SSL_CTRL_SET_MIN_PROTO_VERSION: c_int = 123;
-#[cfg(any(ossl110, libressl261))]
+#[cfg(any(ossl110, libressl))]
 pub const SSL_CTRL_SET_MAX_PROTO_VERSION: c_int = 124;
-#[cfg(any(ossl110g, libressl270))]
+#[cfg(any(ossl110g, libressl))]
 pub const SSL_CTRL_GET_MIN_PROTO_VERSION: c_int = 130;
-#[cfg(any(ossl110g, libressl270))]
+#[cfg(any(ossl110g, libressl))]
 pub const SSL_CTRL_GET_MAX_PROTO_VERSION: c_int = 131;
 #[cfg(ossl300)]
 pub const SSL_CTRL_GET_TMP_KEY: c_int = 133;
@@ -649,7 +645,7 @@ extern "C" {
     ) -> c_long;
 
     #[deprecated(note = "use SSL_CTX_set_alpn_select_cb__fixed_rust instead")]
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_set_alpn_select_cb(
         ssl: *mut SSL_CTX,
         cb: extern "C" fn(

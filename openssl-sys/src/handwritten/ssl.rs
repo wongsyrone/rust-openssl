@@ -307,11 +307,11 @@ extern "C" {
 }
 
 extern "C" {
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_set_alpn_protos(s: *mut SSL_CTX, data: *const c_uchar, len: c_uint) -> c_int;
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_set_alpn_protos(s: *mut SSL, data: *const c_uchar, len: c_uint) -> c_int;
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     #[link_name = "SSL_CTX_set_alpn_select_cb"]
     pub fn SSL_CTX_set_alpn_select_cb__fixed_rust(
         ssl: *mut SSL_CTX,
@@ -327,7 +327,7 @@ extern "C" {
         >,
         arg: *mut c_void,
     );
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_get0_alpn_selected(s: *const SSL, data: *mut *const c_uchar, len: *mut c_uint);
 }
 
@@ -405,7 +405,7 @@ const_ptr_api! {
 }
 
 cfg_if! {
-    if #[cfg(libressl261)] {
+    if #[cfg(libressl)] {
         extern "C" {
             pub fn SSL_CTX_set_min_proto_version(ctx: *mut SSL_CTX, version: u16) -> c_int;
             pub fn SSL_CTX_set_max_proto_version(ctx: *mut SSL_CTX, version: u16) -> c_int;
@@ -558,10 +558,10 @@ extern "C" {
 
     pub fn SSL_new(ctx: *mut SSL_CTX) -> *mut SSL;
 
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_get0_param(ctx: *mut SSL_CTX) -> *mut X509_VERIFY_PARAM;
 
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_get0_param(ssl: *mut SSL) -> *mut X509_VERIFY_PARAM;
 }
 

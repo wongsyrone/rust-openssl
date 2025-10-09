@@ -7,10 +7,8 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
 
         cfgs.push("libressl251");
         cfgs.push("libressl252");
+        cfgs.push("libressl261");
 
-        if libressl_version >= 0x2_06_01_00_0 {
-            cfgs.push("libressl261");
-        }
         if libressl_version >= 0x2_07_00_00_0 {
             cfgs.push("libressl270");
         }
