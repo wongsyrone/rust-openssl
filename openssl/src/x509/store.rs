@@ -284,7 +284,7 @@ impl X509StoreRef {
 }
 
 cfg_if! {
-    if #[cfg(any(boringssl, ossl110, libressl270, awslc))] {
+    if #[cfg(any(boringssl, ossl110, libressl, awslc))] {
         use ffi::X509_STORE_get0_objects;
     } else {
         #[allow(bad_style)]

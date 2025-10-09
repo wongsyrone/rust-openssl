@@ -114,7 +114,7 @@ pub const SSL_OP_PRIORITIZE_CHACHA: ssl_op_type!() = 0x00200000;
 
 pub const SSL_OP_CIPHER_SERVER_PREFERENCE: ssl_op_type!() = 0x00400000;
 cfg_if! {
-    if #[cfg(libressl280)] {
+    if #[cfg(libressl)] {
         pub const SSL_OP_TLS_ROLLBACK_BUG: ssl_op_type!() = 0;
     } else {
         pub const SSL_OP_TLS_ROLLBACK_BUG: ssl_op_type!() = 0x00800000;

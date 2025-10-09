@@ -17,7 +17,7 @@ use std::ops::{Deref, DerefMut};
 use std::ptr;
 
 cfg_if! {
-    if #[cfg(any(boringssl, ossl110, libressl273, awslc))] {
+    if #[cfg(any(boringssl, ossl110, libressl, awslc))] {
         use ffi::{EVP_CIPHER_block_size, EVP_CIPHER_iv_length, EVP_CIPHER_key_length};
     } else {
         use libc::c_int;

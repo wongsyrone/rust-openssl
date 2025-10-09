@@ -1090,7 +1090,7 @@ impl Nid {
     pub const SHAKE128: Nid = Nid(ffi::NID_shake128);
     #[cfg(any(ossl111, awslc))]
     pub const SHAKE256: Nid = Nid(ffi::NID_shake256);
-    #[cfg(any(ossl110, libressl271, awslc))]
+    #[cfg(any(ossl110, libressl, awslc))]
     pub const CHACHA20_POLY1305: Nid = Nid(ffi::NID_chacha20_poly1305);
 }
 
