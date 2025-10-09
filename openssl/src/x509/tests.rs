@@ -954,7 +954,8 @@ fn test_verify_param_set_depth_fails_verification() {
     let store = store_bldr.build();
 
     // OpenSSL 1.1.0+ added support for X509_V_ERR_CERT_CHAIN_TOO_LONG, while 1.0.2 simply ignores the intermediate
-    let expected_error = if cfg!(any(ossl110, libressl)) {
+    // XXX - the version for libressl is a guess. This was fixed with the new X.509 validator.
+    let expected_error = if cfg!(any(ossl110, libressl350)) {
         "certificate chain too long"
     } else {
         "unable to get local issuer certificate"
