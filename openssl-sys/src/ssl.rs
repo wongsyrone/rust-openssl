@@ -343,7 +343,7 @@ pub const SSL_CTRL_CLEAR_OPTIONS: c_int = 77;
 pub const SSL_CTRL_GET_EXTRA_CHAIN_CERTS: c_int = 82;
 #[cfg(ossl102)]
 pub const SSL_CTRL_CHAIN_CERT: c_int = 89;
-#[cfg(any(ossl111, libressl252))]
+#[cfg(any(ossl111, libressl))]
 pub const SSL_CTRL_SET_GROUPS_LIST: c_int = 92;
 #[cfg(any(libressl, all(ossl102, not(ossl110))))]
 pub const SSL_CTRL_SET_ECDH_AUTO: c_int = 94;
@@ -437,7 +437,7 @@ cfg_if! {
                 s as *const c_void as *mut c_void,
             )
         }
-    } else if #[cfg(libressl251)] {
+    } else if #[cfg(libressl)] {
         extern "C" {
             pub fn SSL_set1_groups_list(ctx: *mut SSL, list: *const c_char) -> c_int;
             pub fn SSL_CTX_set1_groups_list(ctx: *mut SSL_CTX, s: *const c_char) -> c_int;
