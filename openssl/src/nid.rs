@@ -1076,7 +1076,7 @@ impl Nid {
     pub const AES_256_CBC_HMAC_SHA1: Nid = Nid(ffi::NID_aes_256_cbc_hmac_sha1);
     #[cfg(ossl111)]
     pub const SM2: Nid = Nid(ffi::NID_sm2);
-    #[cfg(any(ossl111, libressl291))]
+    #[cfg(any(ossl111, libressl))]
     pub const SM3: Nid = Nid(ffi::NID_sm3);
     #[cfg(any(ossl111, libressl380, awslc))]
     pub const SHA3_224: Nid = Nid(ffi::NID_sha3_224);
