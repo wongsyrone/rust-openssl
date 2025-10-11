@@ -6,7 +6,7 @@ pub enum SSL_CIPHER {}
 cfg_if! {
     if #[cfg(any(ossl110, libressl280))] {
         pub enum SSL_SESSION {}
-    } else if #[cfg(libressl251)] {
+    } else if #[cfg(libressl)] {
         #[repr(C)]
         pub struct SSL_SESSION {
             ssl_version: c_int,
@@ -29,38 +29,6 @@ cfg_if! {
             tlsext_ticklen: size_t,
             tlsext_tick_lifetime_int: c_long,
             internal: *mut c_void,
-        }
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct SSL_SESSION {
-            ssl_version: c_int,
-            pub master_key_length: c_int,
-            pub master_key: [c_uchar; 48],
-            session_id_length: c_uint,
-            session_id: [c_uchar; SSL_MAX_SSL_SESSION_ID_LENGTH as usize],
-            sid_ctx_length: c_uint,
-            sid_ctx: [c_uchar; SSL_MAX_SID_CTX_LENGTH as usize],
-            not_resumable: c_int,
-            sess_cert: *mut c_void,
-            peer: *mut X509,
-            verify_result: c_long,
-            timeout: c_long,
-            time: time_t,
-            pub references: c_int,
-            cipher: *const c_void,
-            cipher_id: c_ulong,
-            ciphers: *mut c_void,
-            ex_data: CRYPTO_EX_DATA,
-            prev: *mut c_void,
-            next: *mut c_void,
-            tlsext_hostname: *mut c_char,
-            tlsext_ecpointformatlist_length: size_t,
-            tlsext_ecpointformatlist: *mut u8,
-            tlsext_ellipticcurvelist_length: size_t,
-            tlsext_ellipticcurvelist: *mut u16,
-            tlsext_tick: *mut c_uchar,
-            tlsext_ticklen: size_t,
-            tlsext_tick_lifetime_hint: c_long,
         }
     } else {
         #[repr(C)]
@@ -339,11 +307,11 @@ extern "C" {
 }
 
 extern "C" {
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_set_alpn_protos(s: *mut SSL_CTX, data: *const c_uchar, len: c_uint) -> c_int;
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_set_alpn_protos(s: *mut SSL, data: *const c_uchar, len: c_uint) -> c_int;
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     #[link_name = "SSL_CTX_set_alpn_select_cb"]
     pub fn SSL_CTX_set_alpn_select_cb__fixed_rust(
         ssl: *mut SSL_CTX,
@@ -359,7 +327,7 @@ extern "C" {
         >,
         arg: *mut c_void,
     );
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_get0_alpn_selected(s: *const SSL, data: *mut *const c_uchar, len: *mut c_uint);
 }
 
@@ -437,7 +405,7 @@ const_ptr_api! {
 }
 
 cfg_if! {
-    if #[cfg(libressl261)] {
+    if #[cfg(libressl)] {
         extern "C" {
             pub fn SSL_CTX_set_min_proto_version(ctx: *mut SSL_CTX, version: u16) -> c_int;
             pub fn SSL_CTX_set_max_proto_version(ctx: *mut SSL_CTX, version: u16) -> c_int;
@@ -590,10 +558,10 @@ extern "C" {
 
     pub fn SSL_new(ctx: *mut SSL_CTX) -> *mut SSL;
 
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_get0_param(ctx: *mut SSL_CTX) -> *mut X509_VERIFY_PARAM;
 
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl))]
     pub fn SSL_get0_param(ssl: *mut SSL) -> *mut X509_VERIFY_PARAM;
 }
 

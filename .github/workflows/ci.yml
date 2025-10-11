@@ -194,7 +194,7 @@ jobs:
               bindgen: true
               library:
                 name: libressl
-                version: 2.5.5
+                version: 2.8.3
             - target: x86_64-unknown-linux-gnu
               bindgen: true
               library:
@@ -214,7 +214,7 @@ jobs:
               bindgen: false
               library:
                 name: libressl
-                version: 2.5.5
+                version: 2.8.3
             - target: x86_64-unknown-linux-gnu
               bindgen: false
               library:

@@ -70,15 +70,10 @@ fn main() {
     if let Ok(v) = env::var("DEP_OPENSSL_LIBRESSL_VERSION_NUMBER") {
         let version = u64::from_str_radix(&v, 16).unwrap();
 
-        if version >= 0x2_05_00_00_0 {
-            println!("cargo:rustc-cfg=libressl250");
-        }
-        if version >= 0x2_05_01_00_0 {
-            println!("cargo:rustc-cfg=libressl251");
-        }
-        if version >= 0x2_06_01_00_0 {
-            println!("cargo:rustc-cfg=libressl261");
-        }
+        println!("cargo:rustc-cfg=libressl250");
+        println!("cargo:rustc-cfg=libressl251");
+        println!("cargo:rustc-cfg=libressl261");
+
         if version >= 0x2_07_00_00_0 {
             println!("cargo:rustc-cfg=libressl270");
         }
