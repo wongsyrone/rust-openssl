@@ -1012,7 +1012,7 @@ pub const NID_shake128: c_int = 1100;
 pub const NID_shake256: c_int = 1101;
 #[cfg(ossl110)]
 pub const NID_chacha20_poly1305: c_int = 1018;
-#[cfg(libressl271)]
+#[cfg(libressl)]
 pub const NID_chacha20_poly1305: c_int = 967;
 cfg_if! {
     if #[cfg(ossl340)] {

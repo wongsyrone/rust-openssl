@@ -67,7 +67,7 @@ use crate::error::ErrorStack;
 use crate::ex_data::Index;
 #[cfg(ossl111)]
 use crate::hash::MessageDigest;
-#[cfg(any(ossl110, libressl270))]
+#[cfg(any(ossl110, libressl))]
 use crate::nid::Nid;
 use crate::pkey::{HasPrivate, PKeyRef, Params, Private};
 #[cfg(ossl300)]
@@ -1209,9 +1209,9 @@ impl SslContextBuilder {
     /// A value of `None` indicates that all versions down to the lowest version supported by
     /// OpenSSL are enabled.
     ///
-    /// Requires OpenSSL 1.1.0g or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0g or newer.
     #[corresponds(SSL_CTX_get_min_proto_version)]
-    #[cfg(any(ossl110g, libressl270))]
+    #[cfg(any(ossl110g, libressl))]
     pub fn min_proto_version(&mut self) -> Option<SslVersion> {
         unsafe {
             let r = ffi::SSL_CTX_get_min_proto_version(self.as_ptr());
@@ -1228,9 +1228,9 @@ impl SslContextBuilder {
     /// A value of `None` indicates that all versions up to the highest version supported by
     /// OpenSSL are enabled.
     ///
-    /// Requires OpenSSL 1.1.0g or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0g or newer.
     #[corresponds(SSL_CTX_get_max_proto_version)]
-    #[cfg(any(ossl110g, libressl270))]
+    #[cfg(any(ossl110g, libressl))]
     pub fn max_proto_version(&mut self) -> Option<SslVersion> {
         unsafe {
             let r = ffi::SSL_CTX_get_max_proto_version(self.as_ptr());
@@ -1873,9 +1873,9 @@ impl SslContext {
 impl SslContextRef {
     /// Returns the certificate associated with this `SslContext`, if present.
     ///
-    /// Requires OpenSSL 1.0.2 or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.0.2 or newer.
     #[corresponds(SSL_CTX_get0_certificate)]
-    #[cfg(any(ossl102, libressl270))]
+    #[cfg(any(ossl102, libressl))]
     pub fn certificate(&self) -> Option<&X509Ref> {
         unsafe {
             let ptr = ffi::SSL_CTX_get0_certificate(self.as_ptr());
@@ -2132,9 +2132,9 @@ impl SslCipherRef {
 
     /// Returns the NID corresponding to the cipher.
     ///
-    /// Requires OpenSSL 1.1.0 or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_CIPHER_get_cipher_nid)]
-    #[cfg(any(ossl110, libressl270))]
+    #[cfg(any(ossl110, libressl))]
     pub fn cipher_nid(&self) -> Option<Nid> {
         let n = unsafe { ffi::SSL_CIPHER_get_cipher_nid(self.as_ptr()) };
         if n == 0 {
@@ -2265,9 +2265,9 @@ impl SslSessionRef {
 
     /// Returns the session's TLS protocol version.
     ///
-    /// Requires OpenSSL 1.1.0 or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_SESSION_get_protocol_version)]
-    #[cfg(any(ossl110, libressl270))]
+    #[cfg(any(ossl110, libressl))]
     pub fn protocol_version(&self) -> SslVersion {
         unsafe {
             let version = ffi::SSL_SESSION_get_protocol_version(self.as_ptr());
@@ -2824,9 +2824,9 @@ impl SslRef {
     /// Returns the number of bytes copied, or if the buffer is empty, the size of the `client_random`
     /// value.
     ///
-    /// Requires OpenSSL 1.1.0 or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_get_client_random)]
-    #[cfg(any(ossl110, libressl270))]
+    #[cfg(any(ossl110, libressl))]
     pub fn client_random(&self, buf: &mut [u8]) -> usize {
         unsafe {
             ffi::SSL_get_client_random(self.as_ptr(), buf.as_mut_ptr() as *mut c_uchar, buf.len())
@@ -2838,9 +2838,9 @@ impl SslRef {
     /// Returns the number of bytes copied, or if the buffer is empty, the size of the `server_random`
     /// value.
     ///
-    /// Requires OpenSSL 1.1.0 or LibreSSL 2.7.0 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_get_server_random)]
-    #[cfg(any(ossl110, libressl270))]
+    #[cfg(any(ossl110, libressl))]
     pub fn server_random(&self, buf: &mut [u8]) -> usize {
         unsafe {
             ffi::SSL_get_server_random(self.as_ptr(), buf.as_mut_ptr() as *mut c_uchar, buf.len())
@@ -4260,7 +4260,7 @@ bitflags! {
 }
 
 cfg_if! {
-    if #[cfg(any(boringssl, ossl110, libressl273, awslc))] {
+    if #[cfg(any(boringssl, ossl110, libressl, awslc))] {
         use ffi::{SSL_CTX_up_ref, SSL_SESSION_get_master_key, SSL_SESSION_up_ref, SSL_is_server};
     } else {
         #[allow(bad_style)]

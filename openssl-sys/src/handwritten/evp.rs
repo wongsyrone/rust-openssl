@@ -235,7 +235,7 @@ cfg_if! {
     } else {
         const_ptr_api! {
             extern "C" {
-                pub fn EVP_PKEY_size(pkey: #[const_ptr_if(any(ossl111b, libressl280))] EVP_PKEY) -> c_int;
+                pub fn EVP_PKEY_size(pkey: #[const_ptr_if(any(ossl111b, libressl))] EVP_PKEY) -> c_int;
             }
         }
     }
@@ -265,7 +265,7 @@ const_ptr_api! {
     extern "C" {
         pub fn EVP_DigestVerifyFinal(
             ctx: *mut EVP_MD_CTX,
-            sigret: #[const_ptr_if(any(ossl102, libressl280))] c_uchar,
+            sigret: #[const_ptr_if(any(ossl102, libressl))] c_uchar,
             siglen: size_t,
         ) -> c_int;
     }
@@ -465,9 +465,9 @@ cfg_if! {
         }
         const_ptr_api! {
             extern "C" {
-                pub fn EVP_PKEY_bits(key: #[const_ptr_if(any(ossl110, libressl280))] EVP_PKEY) -> c_int;
+                pub fn EVP_PKEY_bits(key: #[const_ptr_if(any(ossl110, libressl))] EVP_PKEY) -> c_int;
                 #[cfg(any(ossl110, libressl360))]
-                pub fn EVP_PKEY_security_bits(pkey: #[const_ptr_if(any(ossl110, libressl280))] EVP_PKEY) -> c_int;
+                pub fn EVP_PKEY_security_bits(pkey: #[const_ptr_if(any(ossl110, libressl))] EVP_PKEY) -> c_int;
             }
         }
     }
@@ -496,7 +496,7 @@ extern "C" {
 extern "C" {
     pub fn EVP_PKEY_new() -> *mut EVP_PKEY;
     pub fn EVP_PKEY_free(k: *mut EVP_PKEY);
-    #[cfg(any(ossl110, libressl270))]
+    #[cfg(any(ossl110, libressl))]
     pub fn EVP_PKEY_up_ref(pkey: *mut EVP_PKEY) -> c_int;
 
     #[cfg(ossl300)]
@@ -713,7 +713,7 @@ extern "C" {
 
 const_ptr_api! {
     extern "C" {
-        pub fn EVP_PKCS82PKEY(p8: #[const_ptr_if(any(ossl110, libressl280))] PKCS8_PRIV_KEY_INFO) -> *mut EVP_PKEY;
+        pub fn EVP_PKCS82PKEY(p8: #[const_ptr_if(any(ossl110, libressl))] PKCS8_PRIV_KEY_INFO) -> *mut EVP_PKEY;
         pub fn EVP_PKEY2PKCS8(pkey: #[const_ptr_if(any(ossl300))] EVP_PKEY) -> *mut PKCS8_PRIV_KEY_INFO;
     }
 }

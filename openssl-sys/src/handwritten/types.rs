@@ -27,7 +27,7 @@ pub enum ASN1_UTF8STRING {}
 
 pub enum bio_st {} // FIXME remove
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum BIO {}
     } else {
         #[repr(C)]
@@ -87,7 +87,7 @@ pub enum BN_CTX {}
 pub enum BN_GENCB {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum EVP_CIPHER {}
     } else {
         #[repr(C)]
@@ -118,7 +118,7 @@ cfg_if! {
 pub enum EVP_CIPHER_CTX {}
 pub enum EVP_MD {}
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum EVP_MD_CTX {}
     } else {
         #[repr(C)]
@@ -142,7 +142,7 @@ pub enum EVP_PKEY_CTX {}
 pub enum CMAC_CTX {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum HMAC_CTX {}
     } else {
         #[repr(C)]
@@ -158,7 +158,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum DH {}
     } else {
         #[repr(C)]
@@ -187,7 +187,7 @@ cfg_if! {
 pub enum DH_METHOD {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum DSA {}
     } else {
         #[repr(C)]
@@ -216,36 +216,8 @@ cfg_if! {
 pub enum DSA_METHOD {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum RSA {}
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct RSA {
-            pub pad: c_int,
-            pub version: c_long,
-            pub meth: *const RSA_METHOD,
-
-            pub engine: *mut ENGINE,
-            pub n: *mut BIGNUM,
-            pub e: *mut BIGNUM,
-            pub d: *mut BIGNUM,
-            pub p: *mut BIGNUM,
-            pub q: *mut BIGNUM,
-            pub dmp1: *mut BIGNUM,
-            pub dmq1: *mut BIGNUM,
-            pub iqmp: *mut BIGNUM,
-
-            pub ex_data: CRYPTO_EX_DATA,
-            pub references: c_int,
-            pub flags: c_int,
-
-            pub _method_mod_n: *mut BN_MONT_CTX,
-            pub _method_mod_p: *mut BN_MONT_CTX,
-            pub _method_mod_q: *mut BN_MONT_CTX,
-
-            pub blinding: *mut BN_BLINDING,
-            pub mt_blinding: *mut BN_BLINDING,
-        }
     } else {
         #[repr(C)]
         pub struct RSA {
@@ -282,34 +254,8 @@ pub enum RSA_METHOD {}
 pub enum EC_KEY {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum X509 {}
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct X509 {
-            pub cert_info: *mut X509_CINF,
-            pub sig_alg: *mut X509_ALGOR,
-            pub signature: *mut ASN1_BIT_STRING,
-            pub valid: c_int,
-            pub references: c_int,
-            pub name: *mut c_char,
-            pub ex_data: CRYPTO_EX_DATA,
-            pub ex_pathlen: c_long,
-            pub ex_pcpathlen: c_long,
-            pub ex_flags: c_ulong,
-            pub ex_kusage: c_ulong,
-            pub ex_xkusage: c_ulong,
-            pub ex_nscert: c_ulong,
-            skid: *mut c_void,
-            akid: *mut c_void,
-            policy_cache: *mut c_void,
-            crldp: *mut c_void,
-            altname: *mut c_void,
-            nc: *mut c_void,
-            #[cfg(not(osslconf = "OPENSSL_NO_SHA"))]
-            sha1_hash: [c_uchar; 20],
-            aux: *mut c_void,
-        }
     } else {
         #[repr(C)]
         pub struct X509 {
@@ -361,7 +307,7 @@ pub enum X509_LOOKUP_METHOD {}
 pub enum X509_NAME {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl270))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum X509_STORE {}
     } else {
         #[repr(C)]
@@ -399,21 +345,8 @@ cfg_if! {
 pub enum X509_STORE_CTX {}
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum X509_VERIFY_PARAM {}
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct X509_VERIFY_PARAM {
-            pub name: *mut c_char,
-            pub check_time: time_t,
-            pub inh_flags: c_ulong,
-            pub flags: c_ulong,
-            pub purpose: c_int,
-            pub trust: c_int,
-            pub depth: c_int,
-            pub policies: *mut stack_st_ASN1_OBJECT,
-            id: *mut c_void,
-        }
     } else {
         #[repr(C)]
         pub struct X509_VERIFY_PARAM {
@@ -432,7 +365,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl270))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum X509_OBJECT {}
     } else {
         #[repr(C)]
@@ -473,40 +406,8 @@ pub enum OPENSSL_INIT_SETTINGS {}
 
 pub enum ENGINE {}
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum SSL {}
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct SSL {
-            version: c_int,
-            method: *const SSL_METHOD,
-            rbio: *mut BIO,
-            wbio: *mut BIO,
-            bbio: *mut BIO,
-            pub server: c_int,
-            s3: *mut c_void,
-            d1: *mut c_void,
-            param: *mut c_void,
-            cipher_list: *mut stack_st_SSL_CIPHER,
-            cert: *mut c_void,
-            sid_ctx_length: c_uint,
-            sid_ctx: [c_uchar; SSL_MAX_SID_CTX_LENGTH as usize],
-            session: *mut SSL_SESSION,
-            verify_mode: c_int,
-            error: c_int,
-            error_code: c_int,
-            ctx: *mut SSL_CTX,
-            verify_result: c_long,
-            references: c_int,
-            client_version: c_int,
-            max_send_fragment: c_uint,
-            tlsext_hostname: *mut c_char,
-            tlsext_status_type: c_int,
-            initial_ctx: *mut SSL_CTX,
-            enc_read_ctx: *mut EVP_CIPHER_CTX,
-            read_hash: *mut EVP_MD_CTX,
-            internal: *mut c_void,
-        }
     } else {
         #[repr(C)]
         pub struct SSL {
@@ -672,25 +573,8 @@ cfg_if! {
     }
 }
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum SSL_CTX {}
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct SSL_CTX {
-            method: *const SSL_METHOD,
-            cipher_list: *mut stack_st_SSL_CIPHER,
-            cert_store: *mut c_void,
-            session_timeout: c_long,
-            pub references: c_int,
-            extra_certs: *mut stack_st_X509,
-            verify_mode: c_int,
-            sid_ctx_length: c_uint,
-            sid_ctx: [c_uchar; SSL_MAX_SID_CTX_LENGTH as usize],
-            param: *mut X509_VERIFY_PARAM,
-            default_passwd_callback: *mut c_void,
-            default_passwd_callback_userdata: *mut c_void,
-            internal: *mut c_void,
-        }
     } else {
         #[repr(C)]
         pub struct SSL_CTX {
@@ -920,13 +804,8 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(any(ossl110, libressl280))] {
+    if #[cfg(any(ossl110, libressl))] {
         pub enum CRYPTO_EX_DATA {}
-    } else if #[cfg(libressl)] {
-        #[repr(C)]
-        pub struct CRYPTO_EX_DATA {
-            pub sk: *mut stack_st_void,
-        }
     } else {
         #[repr(C)]
         pub struct CRYPTO_EX_DATA {
