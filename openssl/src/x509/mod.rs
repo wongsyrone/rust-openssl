@@ -40,7 +40,7 @@ use crate::util::{self, ForeignTypeExt, ForeignTypeRefExt};
 use crate::{cvt, cvt_n, cvt_p, cvt_p_const};
 use openssl_macros::corresponds;
 
-#[cfg(any(ossl102, boringssl, libressl261, awslc))]
+#[cfg(any(ossl102, boringssl, libressl, awslc))]
 pub mod verify;
 
 pub mod extension;
