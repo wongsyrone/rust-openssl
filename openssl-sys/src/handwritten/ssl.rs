@@ -997,6 +997,7 @@ extern "C" {
     pub fn SSL_set_incoming_stream_policy(s: *mut SSL, policy: c_int, aec: u64) -> c_int;
     pub fn SSL_get_accept_stream_queue_len(s: *mut SSL) -> usize;
     pub fn SSL_set_default_stream_mode(s: *mut SSL, mode: u32) -> c_int;
+    pub fn SSL_get0_group_name(s: *mut SSL) -> *const c_char;
 }
 
 #[cfg(ossl330)]
