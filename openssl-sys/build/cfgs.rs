@@ -64,21 +64,6 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
     } else {
         let openssl_version = openssl_version.unwrap();
 
-        if openssl_version >= 0x3_05_00_00_0 {
-            cfgs.push("ossl350");
-        }
-        if openssl_version >= 0x3_04_00_00_0 {
-            cfgs.push("ossl340");
-        }
-        if openssl_version >= 0x3_03_00_00_0 {
-            cfgs.push("ossl330");
-        }
-        if openssl_version >= 0x3_02_00_00_0 {
-            cfgs.push("ossl320");
-        }
-        if openssl_version >= 0x3_00_00_00_0 {
-            cfgs.push("ossl300");
-        }
         if openssl_version >= 0x1_00_01_00_0 {
             cfgs.push("ossl101");
         }
@@ -114,6 +99,21 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
         }
         if openssl_version >= 0x1_01_01_04_0 {
             cfgs.push("ossl111d");
+        }
+        if openssl_version >= 0x3_00_00_00_0 {
+            cfgs.push("ossl300");
+        }
+        if openssl_version >= 0x3_02_00_00_0 {
+            cfgs.push("ossl320");
+        }
+        if openssl_version >= 0x3_03_00_00_0 {
+            cfgs.push("ossl330");
+        }
+        if openssl_version >= 0x3_04_00_00_0 {
+            cfgs.push("ossl340");
+        }
+        if openssl_version >= 0x3_05_00_00_0 {
+            cfgs.push("ossl350");
         }
     }
 
