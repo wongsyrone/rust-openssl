@@ -76,7 +76,7 @@ pub const SSL_OP_LEGACY_SERVER_CONNECT: ssl_op_type!() = 0x00000004;
 cfg_if! {
     if #[cfg(libressl)] {
         pub const SSL_OP_TLSEXT_PADDING: ssl_op_type!() = 0x0;
-    } else if #[cfg(any(ossl102, libressl))] {
+    } else if #[cfg(ossl102)] {
         pub const SSL_OP_TLSEXT_PADDING: ssl_op_type!() = 0x10;
     }
 }
