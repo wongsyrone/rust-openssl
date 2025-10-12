@@ -497,7 +497,7 @@ impl Cipher {
         unsafe { CipherRef::from_ptr(ffi::EVP_idea_ofb() as *mut _) }
     }
 
-    #[cfg(all(any(ossl110, libressl310), not(osslconf = "OPENSSL_NO_CHACHA")))]
+    #[cfg(all(any(ossl110, libressl), not(osslconf = "OPENSSL_NO_CHACHA")))]
     pub fn chacha20() -> &'static CipherRef {
         unsafe { CipherRef::from_ptr(ffi::EVP_chacha20() as *mut _) }
     }
