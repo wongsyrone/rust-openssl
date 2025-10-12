@@ -418,11 +418,6 @@ See rust-openssl documentation for more information:
         let minor = (libressl_version >> 20) as u8;
         let fix = (libressl_version >> 12) as u8;
         let (major, minor, fix) = match (major, minor, fix) {
-            (3, 0, 0) => ('3', '0', '0'),
-            (3, 0, 1) => ('3', '0', '1'),
-            (3, 0, _) => ('3', '0', 'x'),
-            (3, 1, 0) => ('3', '1', '0'),
-            (3, 1, _) => ('3', '1', 'x'),
             (3, 2, 0) => ('3', '2', '0'),
             (3, 2, 1) => ('3', '2', '1'),
             (3, 2, _) => ('3', '2', 'x'),
@@ -487,7 +482,7 @@ fn version_error() -> ! {
     panic!(
         "
 
-This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3), or LibreSSL 3.0
+This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3), or LibreSSL 3.2
 through 4.1.x, but a different version of OpenSSL was found. The build is now aborting
 due to this version mismatch.
 
