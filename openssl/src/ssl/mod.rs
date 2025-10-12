@@ -367,14 +367,14 @@ impl SslMethod {
 
     /// Support all versions of the DTLS protocol, explicitly as a client.
     #[corresponds(DTLS_client_method)]
-    #[cfg(any(boringssl, ossl110, libressl291, awslc))]
+    #[cfg(any(boringssl, ossl110, libressl, awslc))]
     pub fn dtls_client() -> SslMethod {
         unsafe { SslMethod(DTLS_client_method()) }
     }
 
     /// Support all versions of the DTLS protocol, explicitly as a server.
     #[corresponds(DTLS_server_method)]
-    #[cfg(any(boringssl, ossl110, libressl291, awslc))]
+    #[cfg(any(boringssl, ossl110, libressl, awslc))]
     pub fn dtls_server() -> SslMethod {
         unsafe { SslMethod(DTLS_server_method()) }
     }
@@ -4318,7 +4318,7 @@ cfg_if! {
     }
 }
 cfg_if! {
-    if #[cfg(any(boringssl, ossl110, libressl291, awslc))] {
+    if #[cfg(any(boringssl, ossl110, libressl, awslc))] {
         use ffi::{TLS_method, DTLS_method, TLS_client_method, TLS_server_method, DTLS_server_method, DTLS_client_method};
     } else {
         use ffi::{

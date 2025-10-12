@@ -310,7 +310,7 @@ extern "C" {
     #[cfg(ossl111)]
     pub fn EVP_shake256() -> *const EVP_MD;
     pub fn EVP_ripemd160() -> *const EVP_MD;
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = "OPENSSL_NO_SM3")))]
+    #[cfg(all(any(ossl111, libressl), not(osslconf = "OPENSSL_NO_SM3")))]
     pub fn EVP_sm3() -> *const EVP_MD;
     pub fn EVP_des_ecb() -> *const EVP_CIPHER;
     pub fn EVP_des_ede3() -> *const EVP_CIPHER;
@@ -386,15 +386,15 @@ extern "C" {
     #[cfg(not(osslconf = "OPENSSL_NO_SEED"))]
     pub fn EVP_seed_ofb() -> *const EVP_CIPHER;
 
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = "OPENSSL_NO_SM4")))]
+    #[cfg(all(any(ossl111, libressl), not(osslconf = "OPENSSL_NO_SM4")))]
     pub fn EVP_sm4_ecb() -> *const EVP_CIPHER;
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = "OPENSSL_NO_SM4")))]
+    #[cfg(all(any(ossl111, libressl), not(osslconf = "OPENSSL_NO_SM4")))]
     pub fn EVP_sm4_cbc() -> *const EVP_CIPHER;
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = "OPENSSL_NO_SM4")))]
+    #[cfg(all(any(ossl111, libressl), not(osslconf = "OPENSSL_NO_SM4")))]
     pub fn EVP_sm4_cfb128() -> *const EVP_CIPHER;
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = "OPENSSL_NO_SM4")))]
+    #[cfg(all(any(ossl111, libressl), not(osslconf = "OPENSSL_NO_SM4")))]
     pub fn EVP_sm4_ofb() -> *const EVP_CIPHER;
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = "OPENSSL_NO_SM4")))]
+    #[cfg(all(any(ossl111, libressl), not(osslconf = "OPENSSL_NO_SM4")))]
     pub fn EVP_sm4_ctr() -> *const EVP_CIPHER;
 
     #[cfg(not(osslconf = "OPENSSL_NO_CAMELLIA"))]
