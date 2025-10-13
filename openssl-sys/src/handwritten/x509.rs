@@ -274,7 +274,6 @@ const_ptr_api! {
     extern "C" {
         pub fn i2d_X509_REQ(x: #[const_ptr_if(ossl300)] X509_REQ, buf: *mut *mut u8) -> c_int;
 
-        #[cfg(any(ossl102, libressl))]
         pub fn X509_get0_signature(
             psig: *mut #[const_ptr_if(any(ossl110, libressl))] ASN1_BIT_STRING,
             palg: *mut #[const_ptr_if(any(ossl110, libressl))] X509_ALGOR,

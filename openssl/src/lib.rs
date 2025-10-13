@@ -1,6 +1,6 @@
 //! Bindings to OpenSSL
 //!
-//! This crate provides a safe interface to the popular OpenSSL cryptography library. OpenSSL versions 1.0.1 through
+//! This crate provides a safe interface to the popular OpenSSL cryptography library. OpenSSL versions 1.0.2 through
 //! 3.x.x and LibreSSL versions 3.3 through 4.1.x are supported.
 //!
 //! # Building

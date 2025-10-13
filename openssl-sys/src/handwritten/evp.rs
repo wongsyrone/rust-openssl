@@ -169,6 +169,11 @@ extern "C" {
         data: *const c_void,
         dsize: size_t,
     ) -> c_int;
+    pub fn EVP_DigestVerifyFinal(
+        ctx: *mut EVP_MD_CTX,
+        sigret: *const c_uchar,
+        siglen: size_t,
+    ) -> c_int;
     pub fn EVP_SealInit(
         ctx: *mut EVP_CIPHER_CTX,
         type_: *const EVP_CIPHER,
@@ -259,15 +264,6 @@ cfg_if! {
                 tbslen: size_t
             ) -> c_int;
         }
-    }
-}
-const_ptr_api! {
-    extern "C" {
-        pub fn EVP_DigestVerifyFinal(
-            ctx: *mut EVP_MD_CTX,
-            sigret: #[const_ptr_if(any(ossl102, libressl))] c_uchar,
-            siglen: size_t,
-        ) -> c_int;
     }
 }
 

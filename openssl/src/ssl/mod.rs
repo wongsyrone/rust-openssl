@@ -60,7 +60,7 @@
 #[cfg(ossl300)]
 use crate::cvt_long;
 use crate::dh::{Dh, DhRef};
-#[cfg(all(ossl101, not(ossl110)))]
+#[cfg(all(ossl102, not(ossl110)))]
 use crate::ec::EcKey;
 use crate::ec::EcKeyRef;
 use crate::error::ErrorStack;
@@ -81,7 +81,6 @@ use crate::stack::{Stack, StackRef, Stackable};
 use crate::util;
 use crate::util::{ForeignTypeExt, ForeignTypeRefExt};
 use crate::x509::store::{X509Store, X509StoreBuilderRef, X509StoreRef};
-#[cfg(any(ossl102, boringssl, libressl, awslc))]
 use crate::x509::verify::X509VerifyParamRef;
 use crate::x509::{X509Name, X509Ref, X509StoreContextRef, X509VerifyResult, X509};
 use crate::{cvt, cvt_n, cvt_p, init};
@@ -618,11 +617,9 @@ impl SslAlert {
 /// An error returned from an ALPN selection callback.
 ///
 /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.0.2 or newer.
-#[cfg(any(ossl102, libressl, boringssl, awslc))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct AlpnError(c_int);
 
-#[cfg(any(ossl102, libressl, boringssl, awslc))]
 impl AlpnError {
     /// Terminate the handshake with a fatal alert.
     ///
@@ -911,9 +908,9 @@ impl SslContextBuilder {
     /// indicating if the selected cipher is export-grade, and the key length. The export and key
     /// length options are archaic and should be ignored in almost all cases.
     ///
-    /// Requires OpenSSL 1.0.1 or 1.0.2.
+    /// Requires OpenSSL 1.0.2.
     #[corresponds(SSL_CTX_set_tmp_ecdh_callback)]
-    #[cfg(all(ossl101, not(ossl110)))]
+    #[cfg(all(ossl102, not(ossl110)))]
     #[deprecated(note = "this function leaks memory and does not exist on newer OpenSSL versions")]
     pub fn set_tmp_ecdh_callback<F>(&mut self, callback: F)
     where
@@ -1251,7 +1248,6 @@ impl SslContextBuilder {
     ///
     /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.0.2 or newer.
     #[corresponds(SSL_CTX_set_alpn_protos)]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     pub fn set_alpn_protos(&mut self, protocols: &[u8]) -> Result<(), ErrorStack> {
         unsafe {
             assert!(protocols.len() <= c_uint::MAX as usize);
@@ -1299,7 +1295,6 @@ impl SslContextBuilder {
     /// [`SslContextBuilder::set_alpn_protos`]: struct.SslContextBuilder.html#method.set_alpn_protos
     /// [`select_next_proto`]: fn.select_next_proto.html
     #[corresponds(SSL_CTX_set_alpn_select_cb)]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     pub fn set_alpn_select_callback<F>(&mut self, callback: F)
     where
         F: for<'a> Fn(&mut SslRef, &'a [u8]) -> Result<&'a [u8], AlpnError> + 'static + Sync + Send,
@@ -1343,7 +1338,6 @@ impl SslContextBuilder {
     ///
     /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.0.2 or newer.
     #[corresponds(SSL_CTX_get0_param)]
-    #[cfg(any(ossl102, boringssl, libressl, awslc))]
     pub fn verify_param(&self) -> &X509VerifyParamRef {
         unsafe { X509VerifyParamRef::from_ptr(ffi::SSL_CTX_get0_param(self.as_ptr())) }
     }
@@ -1352,7 +1346,6 @@ impl SslContextBuilder {
     ///
     /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.0.2 or newer.
     #[corresponds(SSL_CTX_get0_param)]
-    #[cfg(any(ossl102, boringssl, libressl, awslc))]
     pub fn verify_param_mut(&mut self) -> &mut X509VerifyParamRef {
         unsafe { X509VerifyParamRef::from_ptr_mut(ffi::SSL_CTX_get0_param(self.as_ptr())) }
     }
@@ -2485,9 +2478,9 @@ impl SslRef {
 
     /// Like [`SslContextBuilder::set_tmp_ecdh_callback`].
     ///
-    /// Requires OpenSSL 1.0.1 or 1.0.2.
+    /// Requires OpenSSL 1.0.2.
     #[corresponds(SSL_set_tmp_ecdh_callback)]
-    #[cfg(all(ossl101, not(ossl110)))]
+    #[cfg(all(ossl102, not(ossl110)))]
     #[deprecated(note = "this function leaks memory and does not exist on newer OpenSSL versions")]
     pub fn set_tmp_ecdh_callback<F>(&mut self, callback: F)
     where
@@ -2517,7 +2510,6 @@ impl SslRef {
     ///
     /// [`SslContextBuilder::set_alpn_protos`]: struct.SslContextBuilder.html#method.set_alpn_protos
     #[corresponds(SSL_set_alpn_protos)]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     pub fn set_alpn_protos(&mut self, protocols: &[u8]) -> Result<(), ErrorStack> {
         unsafe {
             assert!(protocols.len() <= c_uint::MAX as usize);
@@ -2671,7 +2663,6 @@ impl SslRef {
     ///
     /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.0.2 or newer.
     #[corresponds(SSL_get0_alpn_selected)]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     pub fn selected_alpn_protocol(&self) -> Option<&[u8]> {
         unsafe {
             let mut data: *const c_uchar = ptr::null();
@@ -2799,7 +2790,6 @@ impl SslRef {
     ///
     /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.0.2 or newer.
     #[corresponds(SSL_get0_param)]
-    #[cfg(any(ossl102, boringssl, libressl, awslc))]
     pub fn param_mut(&mut self) -> &mut X509VerifyParamRef {
         unsafe { X509VerifyParamRef::from_ptr_mut(ffi::SSL_get0_param(self.as_ptr())) }
     }

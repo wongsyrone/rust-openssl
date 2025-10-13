@@ -293,7 +293,7 @@ impl EcGroupRef {
     /// Sets the flag determining if the group corresponds to a named curve or must be explicitly
     /// parameterized.
     ///
-    /// This defaults to `EXPLICIT_CURVE` in OpenSSL 1.0.1 and 1.0.2, but `NAMED_CURVE` in OpenSSL
+    /// This defaults to `EXPLICIT_CURVE` in OpenSSL 1.0.2, but `NAMED_CURVE` in OpenSSL
     /// 1.1.0.
     #[corresponds(EC_GROUP_set_asn1_flag)]
     pub fn set_asn1_flag(&mut self, flag: Asn1Flag) {
