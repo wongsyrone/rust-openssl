@@ -240,7 +240,7 @@ impl EcGroupRef {
 
     /// Returns the number of bits in the group order.
     #[corresponds(EC_GROUP_order_bits)]
-    #[cfg(ossl110)]
+    #[cfg(any(ossl110, libressl340, awslc, boringssl))]
     pub fn order_bits(&self) -> u32 {
         unsafe { ffi::EC_GROUP_order_bits(self.as_ptr()) as u32 }
     }
