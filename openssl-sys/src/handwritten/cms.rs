@@ -4,7 +4,6 @@ use libc::*;
 pub enum CMS_ContentInfo {}
 
 extern "C" {
-    #[cfg(ossl101)]
     pub fn CMS_ContentInfo_free(cms: *mut CMS_ContentInfo);
 }
 

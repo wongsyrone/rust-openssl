@@ -1071,7 +1071,6 @@ impl X509NameBuilder {
 
     /// Add a name entry
     #[corresponds(X509_NAME_add_entry)]
-    #[cfg(any(ossl101, libressl350))]
     pub fn append_entry(&mut self, ne: &X509NameEntryRef) -> std::result::Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::X509_NAME_add_entry(
