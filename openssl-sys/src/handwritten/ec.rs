@@ -56,7 +56,7 @@ extern "C" {
 
     pub fn EC_GROUP_get_degree(group: *const EC_GROUP) -> c_int;
 
-    #[cfg(any(ossl110, libressl340))]
+    #[cfg(any(ossl110, libressl))]
     pub fn EC_GROUP_order_bits(group: *const EC_GROUP) -> c_int;
 
     pub fn EC_GROUP_new_curve_GFp(

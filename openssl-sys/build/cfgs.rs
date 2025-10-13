@@ -16,13 +16,9 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
         cfgs.push("libressl291");
         cfgs.push("libressl310");
         cfgs.push("libressl321");
+        cfgs.push("libressl332");
+        cfgs.push("libressl340");
 
-        if libressl_version >= 0x3_03_02_00_0 {
-            cfgs.push("libressl332");
-        }
-        if libressl_version >= 0x3_04_00_00_0 {
-            cfgs.push("libressl340");
-        }
         if libressl_version >= 0x3_05_00_00_0 {
             cfgs.push("libressl350");
         }

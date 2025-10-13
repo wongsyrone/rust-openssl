@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 
 use crate::dh::Dh;
 use crate::error::ErrorStack;
-#[cfg(any(ossl111, libressl340))]
+#[cfg(any(ossl111, libressl))]
 use crate::ssl::SslVersion;
 use crate::ssl::{
     HandshakeError, Ssl, SslContext, SslContextBuilder, SslContextRef, SslMethod, SslMode,
@@ -239,7 +239,7 @@ impl SslAcceptor {
              ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
              DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
         )?;
-        #[cfg(any(ossl111, libressl340))]
+        #[cfg(any(ossl111, libressl))]
         ctx.set_ciphersuites(
             "TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256",
         )?;
@@ -251,10 +251,10 @@ impl SslAcceptor {
     /// This corresponds to the modern configuration of version 5 of Mozilla's server side TLS recommendations.
     /// See its [documentation][docs] for more details on specifics.
     ///
-    /// Requires OpenSSL 1.1.1 or LibreSSL 3.4.0 or newer.
+    /// Requires OpenSSL 1.1.1 or newer or LibreSSL.
     ///
     /// [docs]: https://wiki.mozilla.org/Security/Server_Side_TLS
-    #[cfg(any(ossl111, libressl340))]
+    #[cfg(any(ossl111, libressl))]
     pub fn mozilla_modern_v5(method: SslMethod) -> Result<SslAcceptorBuilder, ErrorStack> {
         let mut ctx = ctx(method)?;
         ctx.set_min_proto_version(Some(SslVersion::TLS1_3))?;
@@ -275,7 +275,7 @@ impl SslAcceptor {
     pub fn mozilla_intermediate(method: SslMethod) -> Result<SslAcceptorBuilder, ErrorStack> {
         let mut ctx = ctx(method)?;
         ctx.set_options(SslOptions::CIPHER_SERVER_PREFERENCE);
-        #[cfg(any(ossl111, libressl340))]
+        #[cfg(any(ossl111, libressl))]
         ctx.set_options(SslOptions::NO_TLSV1_3);
         let dh = Dh::params_from_pem(FFDHE_2048.as_bytes())?;
         ctx.set_tmp_dh(&dh)?;
@@ -305,7 +305,7 @@ impl SslAcceptor {
         ctx.set_options(
             SslOptions::CIPHER_SERVER_PREFERENCE | SslOptions::NO_TLSV1 | SslOptions::NO_TLSV1_1,
         );
-        #[cfg(any(ossl111, libressl340))]
+        #[cfg(any(ossl111, libressl))]
         ctx.set_options(SslOptions::NO_TLSV1_3);
         setup_curves(&mut ctx)?;
         ctx.set_cipher_list(
