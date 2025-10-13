@@ -1068,7 +1068,6 @@ fn test_set_purpose_fails_verification() {
 }
 
 #[test]
-#[cfg(any(ossl101, libressl350))]
 fn test_add_name_entry() {
     let cert = include_bytes!("../../test/cert.pem");
     let cert = X509::from_pem(cert).unwrap();
