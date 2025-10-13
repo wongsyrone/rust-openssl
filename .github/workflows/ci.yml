@@ -190,7 +190,7 @@ jobs:
               bindgen: true
               library:
                 name: libressl
-                version: 3.3.6
+                version: 3.4.3
             - target: x86_64-unknown-linux-gnu
               bindgen: true
               library:
@@ -210,7 +210,7 @@ jobs:
               bindgen: false
               library:
                 name: libressl
-                version: 3.3.6
+                version: 3.4.3
             - target: x86_64-unknown-linux-gnu
               bindgen: false
               library:
