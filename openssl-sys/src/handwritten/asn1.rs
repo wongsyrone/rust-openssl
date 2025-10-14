@@ -68,7 +68,6 @@ extern "C" {
     pub fn ASN1_GENERALIZEDTIME_free(tm: *mut ASN1_GENERALIZEDTIME);
     pub fn ASN1_GENERALIZEDTIME_print(b: *mut BIO, tm: *const ASN1_GENERALIZEDTIME) -> c_int;
     pub fn ASN1_TIME_new() -> *mut ASN1_TIME;
-    #[cfg(any(ossl102, libressl350))]
     pub fn ASN1_TIME_diff(
         pday: *mut c_int,
         psec: *mut c_int,

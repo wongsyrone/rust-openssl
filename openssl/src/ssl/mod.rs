@@ -3789,7 +3789,7 @@ impl<S: Read + Write> SslStream<S> {
     #[corresponds(SSL_read_ex)]
     pub fn ssl_read_uninit(&mut self, buf: &mut [MaybeUninit<u8>]) -> Result<usize, Error> {
         cfg_if! {
-            if #[cfg(any(ossl111, libressl350))] {
+            if #[cfg(any(ossl111, libressl))] {
                 let mut readbytes = 0;
                 let ret = unsafe {
                     ffi::SSL_read_ex(
@@ -3830,7 +3830,7 @@ impl<S: Read + Write> SslStream<S> {
     #[corresponds(SSL_write_ex)]
     pub fn ssl_write(&mut self, buf: &[u8]) -> Result<usize, Error> {
         cfg_if! {
-            if #[cfg(any(ossl111, libressl350))] {
+            if #[cfg(any(ossl111, libressl))] {
                 let mut written = 0;
                 let ret = unsafe {
                     ffi::SSL_write_ex(
@@ -3868,7 +3868,7 @@ impl<S: Read + Write> SslStream<S> {
     #[corresponds(SSL_peek_ex)]
     pub fn ssl_peek(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
         cfg_if! {
-            if #[cfg(any(ossl111, libressl350))] {
+            if #[cfg(any(ossl111, libressl))] {
                 let mut readbytes = 0;
                 let ret = unsafe {
                     ffi::SSL_peek_ex(
