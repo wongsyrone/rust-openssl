@@ -93,7 +93,7 @@ extern "C" {
     pub fn EVP_DigestFinal(ctx: *mut EVP_MD_CTX, res: *mut u8, n: *mut u32) -> c_int;
     #[cfg(ossl111)]
     pub fn EVP_DigestFinalXOF(ctx: *mut EVP_MD_CTX, res: *mut u8, len: usize) -> c_int;
-    #[cfg(ossl330)]
+    #[cfg(any(ossl330, awslc))]
     pub fn EVP_DigestSqueeze(ctx: *mut EVP_MD_CTX, res: *mut u8, len: usize) -> c_int;
 
     #[cfg(ossl300)]
