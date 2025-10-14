@@ -304,7 +304,7 @@ fn postprocess(include_dirs: &[PathBuf]) -> Version {
 /// version string of OpenSSL.
 #[allow(clippy::unusual_byte_groupings)]
 fn validate_headers(include_dirs: &[PathBuf]) -> Version {
-    // This `*-sys` crate only works with OpenSSL 1.0.1, 1.0.2, 1.1.0, 1.1.1 and 3.0.0.
+    // This `*-sys` crate only works with OpenSSL 1.0.2, 1.1.0, 1.1.1 and 3.0.0.
     // To correctly expose the right API from this crate, take a look at
     // `opensslv.h` to see what version OpenSSL claims to be.
     //
@@ -466,9 +466,6 @@ See rust-openssl documentation for more information:
         } else if openssl_version >= 0x1_00_02_00_0 {
             println!("cargo:version=102");
             Version::Openssl10x
-        } else if openssl_version >= 0x1_00_01_00_0 {
-            println!("cargo:version=101");
-            Version::Openssl10x
         } else {
             version_error()
         }
@@ -479,7 +476,7 @@ fn version_error() -> ! {
     panic!(
         "
 
-This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3), or LibreSSL 3.3
+This crate is only compatible with OpenSSL (version 1.0.2 through 1.1.1, or 3), or LibreSSL 3.3
 through 4.1.x, but a different version of OpenSSL was found. The build is now aborting
 due to this version mismatch.
 

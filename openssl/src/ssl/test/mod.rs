@@ -504,7 +504,6 @@ fn test_connect_with_srtp_ssl() {
 /// Tests that when the `SslStream` is created as a server stream, the protocols
 /// are correctly advertised to the client.
 #[test]
-#[cfg(any(ossl102, libressl, boringssl, awslc))]
 fn test_alpn_server_advertise_multiple() {
     let mut server = Server::builder();
     server.ctx().set_alpn_select_callback(|_, client| {
@@ -535,7 +534,6 @@ fn test_alpn_server_select_none_fatal() {
 }
 
 #[test]
-#[cfg(any(ossl102, libressl, boringssl, awslc))]
 fn test_alpn_server_select_none() {
     static CALLED_BACK: AtomicBool = AtomicBool::new(false);
 
@@ -554,7 +552,6 @@ fn test_alpn_server_select_none() {
 }
 
 #[test]
-#[cfg(any(boringssl, ossl102, libressl, awslc))]
 fn test_alpn_server_unilateral() {
     let server = Server::builder().build();
 
@@ -993,7 +990,7 @@ fn tmp_dh_callback() {
 }
 
 #[test]
-#[cfg(all(ossl101, not(ossl110)))]
+#[cfg(all(ossl102, not(ossl110)))]
 #[allow(deprecated)]
 fn tmp_ecdh_callback() {
     use crate::ec::EcKey;
@@ -1043,7 +1040,7 @@ fn tmp_dh_callback_ssl() {
 }
 
 #[test]
-#[cfg(all(ossl101, not(ossl110)))]
+#[cfg(all(ossl102, not(ossl110)))]
 #[allow(deprecated)]
 fn tmp_ecdh_callback_ssl() {
     use crate::ec::EcKey;

@@ -623,7 +623,6 @@ impl<T> PkeyCtxRef<T> {
     ///
     /// This is only useful for RSA keys.
     #[corresponds(EVP_PKEY_CTX_set_rsa_oaep_md)]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     #[inline]
     pub fn set_rsa_oaep_md(&mut self, md: &MdRef) -> Result<(), ErrorStack> {
         unsafe {
@@ -640,7 +639,6 @@ impl<T> PkeyCtxRef<T> {
     ///
     /// This is only useful for RSA keys.
     #[corresponds(EVP_PKEY_CTX_set0_rsa_oaep_label)]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     pub fn set_rsa_oaep_label(&mut self, label: &[u8]) -> Result<(), ErrorStack> {
         use crate::LenType;
         let len = LenType::try_from(label.len()).unwrap();
@@ -955,7 +953,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(any(ossl102, libressl, boringssl, awslc))]
     fn rsa_oaep() {
         let key = include_bytes!("../test/rsa.pem");
         let rsa = Rsa::private_key_from_pem(key).unwrap();
@@ -1080,8 +1077,7 @@ mod test {
             cfg_if! {
                 if #[cfg(awslc)] {
                     72
-                } else if #[cfg(any(libressl, all(ossl101, not(ossl102))))] {
-                    // LibreSSL and OpenSSL 1.0.1 and earlier
+                } else if #[cfg(libressl)] {
                     48
                 } else {
                     64

@@ -283,11 +283,8 @@ extern "C" {
 }
 
 extern "C" {
-    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_set_alpn_protos(s: *mut SSL_CTX, data: *const c_uchar, len: c_uint) -> c_int;
-    #[cfg(any(ossl102, libressl))]
     pub fn SSL_set_alpn_protos(s: *mut SSL, data: *const c_uchar, len: c_uint) -> c_int;
-    #[cfg(any(ossl102, libressl))]
     #[link_name = "SSL_CTX_set_alpn_select_cb"]
     pub fn SSL_CTX_set_alpn_select_cb__fixed_rust(
         ssl: *mut SSL_CTX,
@@ -303,7 +300,6 @@ extern "C" {
         >,
         arg: *mut c_void,
     );
-    #[cfg(any(ossl102, libressl))]
     pub fn SSL_get0_alpn_selected(s: *const SSL, data: *mut *const c_uchar, len: *mut c_uint);
 }
 
@@ -528,10 +524,8 @@ extern "C" {
 
     pub fn SSL_new(ctx: *mut SSL_CTX) -> *mut SSL;
 
-    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_get0_param(ctx: *mut SSL_CTX) -> *mut X509_VERIFY_PARAM;
 
-    #[cfg(any(ossl102, libressl))]
     pub fn SSL_get0_param(ssl: *mut SSL) -> *mut X509_VERIFY_PARAM;
 }
 
@@ -710,15 +704,10 @@ extern "C" {
     ) -> *mut c_char;
 
     pub fn SSL_get_certificate(ssl: *const SSL) -> *mut X509;
-}
-const_ptr_api! {
-    extern "C" {
-        pub fn SSL_get_privatekey(ssl: #[const_ptr_if(any(ossl102, libressl))] SSL) -> *mut EVP_PKEY;
-    }
+    pub fn SSL_get_privatekey(ssl: *const SSL) -> *mut EVP_PKEY;
 }
 
 extern "C" {
-    #[cfg(any(ossl102, libressl))]
     pub fn SSL_CTX_get0_certificate(ctx: *const SSL_CTX) -> *mut X509;
     #[cfg(any(ossl102, libressl340))]
     pub fn SSL_CTX_get0_privatekey(ctx: *const SSL_CTX) -> *mut EVP_PKEY;
@@ -855,7 +844,6 @@ const_ptr_api! {
 
 const_ptr_api! {
     extern "C" {
-        #[cfg(any(ossl102, libressl))]
         pub fn SSL_is_server(s: #[const_ptr_if(any(ossl110f, libressl))] SSL) -> c_int;
     }
 }
