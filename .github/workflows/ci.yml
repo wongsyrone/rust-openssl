@@ -195,17 +195,17 @@ jobs:
               bindgen: true
               library:
                 name: libressl
-                version: 3.9.2
-            - target: x86_64-unknown-linux-gnu
-              bindgen: true
-              library:
-                name: libressl
                 version: 4.0.0
             - target: x86_64-unknown-linux-gnu
               bindgen: true
               library:
                 name: libressl
                 version: 4.1.0
+            - target: x86_64-unknown-linux-gnu
+              bindgen: true
+              library:
+                name: libressl
+                version: 4.2.0
             - target: x86_64-unknown-linux-gnu
               bindgen: false
               library:
@@ -215,17 +215,17 @@ jobs:
               bindgen: false
               library:
                 name: libressl
-                version: 3.9.2
-            - target: x86_64-unknown-linux-gnu
-              bindgen: false
-              library:
-                name: libressl
                 version: 4.0.0
             - target: x86_64-unknown-linux-gnu
               bindgen: false
               library:
                 name: libressl
                 version: 4.1.0
+            - target: x86_64-unknown-linux-gnu
+              bindgen: false
+              library:
+                name: libressl
+                version: 4.2.0
             - target: x86_64-unknown-linux-gnu
               bindgen: false
               library:
