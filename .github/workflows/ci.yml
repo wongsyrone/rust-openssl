@@ -163,7 +163,7 @@ jobs:
             - name: aws-lc
               version: vendored
             - name: boringssl
-              version: bc81f389c45e0192251c4b29622cfd734ae7baf2
+              version: 338f44af3c92ef665bf740a8127a2d69c872b52a
             - name: openssl
               version: vendored
             - name: openssl
