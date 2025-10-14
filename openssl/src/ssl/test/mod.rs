@@ -624,7 +624,6 @@ fn read_panic() {
 }
 
 #[test]
-#[cfg_attr(all(libressl, not(libressl340)), ignore)]
 #[should_panic(expected = "blammo")]
 fn flush_panic() {
     struct ExplodingStream(TcpStream);
@@ -918,7 +917,7 @@ fn connector_client_server_mozilla_intermediate_v5() {
 }
 
 #[test]
-#[cfg(any(ossl111, libressl340))]
+#[cfg(any(ossl111, libressl))]
 fn connector_client_server_mozilla_modern_v5() {
     test_mozilla_server(SslAcceptor::mozilla_modern_v5);
 }
@@ -966,7 +965,7 @@ fn cert_store() {
 }
 
 #[test]
-#[cfg_attr(any(all(libressl, not(libressl340)), boringssl, awslc), ignore)]
+#[cfg_attr(any(boringssl, awslc), ignore)]
 fn tmp_dh_callback() {
     static CALLED_BACK: AtomicBool = AtomicBool::new(false);
 
@@ -981,7 +980,7 @@ fn tmp_dh_callback() {
 
     let mut client = server.client();
     // TLS 1.3 has no DH suites, so make sure we don't pick that version
-    #[cfg(any(ossl111, libressl340))]
+    #[cfg(any(ossl111, libressl))]
     client.ctx().set_options(super::SslOptions::NO_TLSV1_3);
     client.ctx().set_cipher_list("EDH").unwrap();
     client.connect();
@@ -1014,7 +1013,7 @@ fn tmp_ecdh_callback() {
 }
 
 #[test]
-#[cfg_attr(any(all(libressl, not(libressl340)), boringssl, awslc), ignore)]
+#[cfg_attr(any(boringssl, awslc), ignore)]
 fn tmp_dh_callback_ssl() {
     static CALLED_BACK: AtomicBool = AtomicBool::new(false);
 
@@ -1031,7 +1030,7 @@ fn tmp_dh_callback_ssl() {
 
     let mut client = server.client();
     // TLS 1.3 has no DH suites, so make sure we don't pick that version
-    #[cfg(any(ossl111, libressl340))]
+    #[cfg(any(ossl111, libressl))]
     client.ctx().set_options(super::SslOptions::NO_TLSV1_3);
     client.ctx().set_cipher_list("EDH").unwrap();
     client.connect();

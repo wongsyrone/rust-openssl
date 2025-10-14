@@ -136,12 +136,12 @@ cfg_if! {
     if #[cfg(ossl102)] {
         pub const SSL_OP_NO_DTLSv1: ssl_op_type!() = 0x04000000;
         pub const SSL_OP_NO_DTLSv1_2: ssl_op_type!() = 0x08000000;
-    } else if #[cfg(libressl332)] {
+    } else if #[cfg(libressl)] {
         pub const SSL_OP_NO_DTLSv1: ssl_op_type!() = 0x40000000;
         pub const SSL_OP_NO_DTLSv1_2: ssl_op_type!() = 0x80000000;
     }
 }
-#[cfg(any(ossl111, libressl340))]
+#[cfg(any(ossl111, libressl))]
 pub const SSL_OP_NO_TLSv1_3: ssl_op_type!() = 0x20000000;
 
 #[cfg(ossl110h)]
@@ -552,11 +552,11 @@ pub const SSL_CLIENT_HELLO_ERROR: c_int = 0;
 #[cfg(ossl111)]
 pub const SSL_CLIENT_HELLO_RETRY: c_int = -1;
 
-#[cfg(any(ossl111, libressl340))]
+#[cfg(any(ossl111, libressl))]
 pub const SSL_READ_EARLY_DATA_ERROR: c_int = 0;
-#[cfg(any(ossl111, libressl340))]
+#[cfg(any(ossl111, libressl))]
 pub const SSL_READ_EARLY_DATA_SUCCESS: c_int = 1;
-#[cfg(any(ossl111, libressl340))]
+#[cfg(any(ossl111, libressl))]
 pub const SSL_READ_EARLY_DATA_FINISH: c_int = 2;
 
 cfg_if! {
