@@ -1241,7 +1241,7 @@ mod test {
         // result_buf contains the digest
         assert_eq!(result_buf[..length], digest);
 
-        // Attempt recovery of teh entire DigestInfo
+        // Attempt recovery of the entire DigestInfo
         let mut ctx = PkeyCtx::new(&key).unwrap();
         ctx.verify_recover_init().unwrap();
         ctx.set_rsa_padding(Padding::PKCS1).unwrap();
