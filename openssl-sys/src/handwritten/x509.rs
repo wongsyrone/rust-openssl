@@ -226,7 +226,6 @@ extern "C" {
 }
 const_ptr_api! {
     extern "C" {
-        #[cfg(any(ossl110, libressl))]
         pub fn X509_REVOKED_dup(rev: #[const_ptr_if(ossl300)] X509_REVOKED) -> *mut X509_REVOKED;
     }
 }
@@ -255,7 +254,6 @@ extern "C" {
 const_ptr_api! {
     extern "C" {
         pub fn i2d_X509_CRL(x: #[const_ptr_if(ossl300)] X509_CRL, buf: *mut *mut u8) -> c_int;
-        #[cfg(any(ossl110, libressl))]
         pub fn X509_CRL_dup(x: #[const_ptr_if(ossl300)] X509_CRL) -> *mut X509_CRL;
     }
 }
@@ -279,7 +277,6 @@ const_ptr_api! {
             x: *const X509,
         );
 
-        #[cfg(any(ossl110, libressl))]
         pub fn X509_REQ_dup(x: #[const_ptr_if(ossl300)] X509_REQ) -> *mut X509_REQ;
     }
 }
@@ -302,7 +299,6 @@ const_ptr_api! {
     extern "C" {
         pub fn i2d_X509(x: #[const_ptr_if(ossl300)] X509, buf: *mut *mut u8) -> c_int;
         pub fn X509_NAME_dup(x: #[const_ptr_if(ossl300)] X509_NAME) -> *mut X509_NAME;
-        #[cfg(any(ossl110, libressl))]
         pub fn X509_dup(x: #[const_ptr_if(ossl300)] X509) -> *mut X509;
         pub fn X509_NAME_add_entry(
             name: *mut X509_NAME,

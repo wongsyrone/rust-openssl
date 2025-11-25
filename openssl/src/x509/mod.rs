@@ -1631,8 +1631,7 @@ impl X509RevokedRef {
     }
 
     /// Copies the entry to a new `X509Revoked`.
-    #[corresponds(X509_NAME_dup)]
-    #[cfg(any(boringssl, ossl110, libressl, awslc))]
+    #[corresponds(X509_REVOKED_dup)]
     pub fn to_owned(&self) -> Result<X509Revoked, ErrorStack> {
         unsafe { cvt_p(ffi::X509_REVOKED_dup(self.as_ptr())).map(|n| X509Revoked::from_ptr(n)) }
     }
