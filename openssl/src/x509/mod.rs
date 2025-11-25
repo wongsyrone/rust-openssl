@@ -2085,6 +2085,35 @@ impl GeneralName {
             Ok(GeneralName::from_ptr(gn))
         }
     }
+
+    pub(crate) fn new_dir_name(name: &X509NameRef) -> Result<GeneralName, ErrorStack> {
+        unsafe {
+            ffi::init();
+            let gn = cvt_p(ffi::GENERAL_NAME_new())?;
+            (*gn).type_ = ffi::GEN_DIRNAME;
+
+            let dup = match name.to_owned() {
+                Ok(dup) => dup,
+                Err(e) => {
+                    ffi::GENERAL_NAME_free(gn);
+                    return Err(e);
+                }
+            };
+
+            #[cfg(any(boringssl, awslc))]
+            {
+                (*gn).d.directoryName = dup.as_ptr();
+            }
+            #[cfg(not(any(boringssl, awslc)))]
+            {
+                (*gn).d = dup.as_ptr().cast();
+            }
+
+            std::mem::forget(dup);
+
+            Ok(GeneralName::from_ptr(gn))
+        }
+    }
 }
 
 impl GeneralNameRef {
