@@ -301,7 +301,6 @@ extern "C" {
 const_ptr_api! {
     extern "C" {
         pub fn i2d_X509(x: #[const_ptr_if(ossl300)] X509, buf: *mut *mut u8) -> c_int;
-        #[cfg(any(ossl110, libressl))]
         pub fn X509_NAME_dup(x: #[const_ptr_if(ossl300)] X509_NAME) -> *mut X509_NAME;
         #[cfg(any(ossl110, libressl))]
         pub fn X509_dup(x: #[const_ptr_if(ossl300)] X509) -> *mut X509;

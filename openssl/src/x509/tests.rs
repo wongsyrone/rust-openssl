@@ -830,7 +830,6 @@ fn test_name_cmp() {
 }
 
 #[test]
-#[cfg(any(boringssl, ossl110, libressl, awslc))]
 fn test_name_to_owned() {
     let cert = include_bytes!("../../test/cert.pem");
     let cert = X509::from_pem(cert).unwrap();

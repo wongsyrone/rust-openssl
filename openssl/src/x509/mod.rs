@@ -1251,7 +1251,6 @@ impl X509NameRef {
 
     /// Copies the name to a new `X509Name`.
     #[corresponds(X509_NAME_dup)]
-    #[cfg(any(boringssl, ossl110, libressl, awslc))]
     pub fn to_owned(&self) -> Result<X509Name, ErrorStack> {
         unsafe { cvt_p(ffi::X509_NAME_dup(self.as_ptr())).map(|n| X509Name::from_ptr(n)) }
     }
