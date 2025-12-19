@@ -1,7 +1,7 @@
-#[cfg(ossl320)]
+#[cfg(ossl300)]
 struct EvpKdf(*mut ffi::EVP_KDF);
 
-#[cfg(ossl320)]
+#[cfg(ossl300)]
 impl Drop for EvpKdf {
     fn drop(&mut self) {
         unsafe {
@@ -10,10 +10,10 @@ impl Drop for EvpKdf {
     }
 }
 
-#[cfg(ossl320)]
+#[cfg(ossl300)]
 struct EvpKdfCtx(*mut ffi::EVP_KDF_CTX);
 
-#[cfg(ossl320)]
+#[cfg(ossl300)]
 impl Drop for EvpKdfCtx {
     fn drop(&mut self) {
         unsafe {
@@ -23,7 +23,7 @@ impl Drop for EvpKdfCtx {
 }
 
 cfg_if::cfg_if! {
-    if #[cfg(all(ossl320, not(osslconf = "OPENSSL_NO_ARGON2")))] {
+    if #[cfg(ossl300)] {
         use std::ffi::CStr;
         use std::ptr;
         use foreign_types::ForeignTypeRef;
