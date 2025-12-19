@@ -24,7 +24,6 @@ impl Drop for EvpKdfCtx {
 
 cfg_if::cfg_if! {
     if #[cfg(all(ossl320, not(osslconf = "OPENSSL_NO_ARGON2")))] {
-        use std::cmp;
         use std::ffi::CStr;
         use std::ptr;
         use foreign_types::ForeignTypeRef;
@@ -32,11 +31,42 @@ cfg_if::cfg_if! {
         use crate::{cvt, cvt_p};
         use crate::lib_ctx::LibCtxRef;
         use crate::error::ErrorStack;
-        use crate::ossl_param::OsslParamBuilder;
+        use crate::ossl_param::{OsslParamBuilder, OsslParamArray};
 
         // Safety: these all have null terminators.
         // We cen remove these CStr::from_bytes_with_nul_unchecked calls
         // when we upgrade to Rust 1.77+ with literal c"" syntax.
+
+        /// Derives a key using a KDF.
+        fn kdf_digest(
+            kdf_identifier: &CStr,
+            ctx: Option<&LibCtxRef>,
+            params: &OsslParamArray,
+            out: &mut [u8],
+        ) -> Result<(), ErrorStack> {
+            let libctx = ctx.map_or(ptr::null_mut(), ForeignTypeRef::as_ptr);
+            unsafe {
+                let kdf = EvpKdf(cvt_p(ffi::EVP_KDF_fetch(
+                    libctx,
+                    kdf_identifier.as_ptr() as *const c_char,
+                    ptr::null(),
+                ))?);
+                let ctx = EvpKdfCtx(cvt_p(ffi::EVP_KDF_CTX_new(kdf.0))?);
+                cvt(ffi::EVP_KDF_derive(
+                    ctx.0,
+                    out.as_mut_ptr(),
+                    out.len(),
+                    params.as_ptr(),
+                ))
+                .map(|_| ())
+            }
+        }
+    }
+}
+
+cfg_if::cfg_if! {
+    if #[cfg(all(ossl320, not(osslconf = "OPENSSL_NO_ARGON2")))] {
+        use std::cmp;
 
         const OSSL_KDF_PARAM_PASSWORD: &CStr = unsafe { CStr::from_bytes_with_nul_unchecked(b"pass\0") };
         const OSSL_KDF_PARAM_SALT: &CStr = unsafe { CStr::from_bytes_with_nul_unchecked(b"salt\0") };
@@ -141,21 +171,7 @@ cfg_if::cfg_if! {
                 bld.add_octet_string(OSSL_KDF_PARAM_SECRET, secret)?;
             }
             let params = bld.to_param()?;
-            unsafe {
-                let argon2 = EvpKdf(cvt_p(ffi::EVP_KDF_fetch(
-                    libctx,
-                    kdf_identifier.as_ptr() as *const c_char,
-                    ptr::null(),
-                ))?);
-                let ctx = EvpKdfCtx(cvt_p(ffi::EVP_KDF_CTX_new(argon2.0))?);
-                cvt(ffi::EVP_KDF_derive(
-                    ctx.0,
-                    out.as_mut_ptr(),
-                    out.len(),
-                    params.as_ptr(),
-                ))
-                .map(|_| ())
-            }
+            kdf_digest(kdf_identifier, ctx, &params, out)
         }
     }
 }
