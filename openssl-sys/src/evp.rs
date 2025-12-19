@@ -44,6 +44,9 @@ cfg_if! {
         pub const EVP_PKEY_PRIVATE_KEY: c_int = EVP_PKEY_KEY_PARAMETERS | OSSL_KEYMGMT_SELECT_PRIVATE_KEY;
         pub const EVP_PKEY_PUBLIC_KEY: c_int = EVP_PKEY_KEY_PARAMETERS | OSSL_KEYMGMT_SELECT_PUBLIC_KEY;
         pub const EVP_PKEY_KEYPAIR: c_int = EVP_PKEY_PUBLIC_KEY | OSSL_KEYMGMT_SELECT_PRIVATE_KEY;
+        pub const EVP_KDF_HKDF_MODE_EXTRACT_AND_EXPAND: c_int = 0;
+        pub const EVP_KDF_HKDF_MODE_EXTRACT_ONLY: c_int = 1;
+        pub const EVP_KDF_HKDF_MODE_EXPAND_ONLY: c_int = 2;
     }
 }
 
