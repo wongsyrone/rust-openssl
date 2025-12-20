@@ -60,8 +60,6 @@
 #[cfg(ossl300)]
 use crate::cvt_long;
 use crate::dh::{Dh, DhRef};
-#[cfg(all(ossl102, not(ossl110)))]
-use crate::ec::EcKey;
 use crate::ec::EcKeyRef;
 use crate::error::ErrorStack;
 use crate::ex_data::Index;
@@ -246,7 +244,7 @@ bitflags! {
         ///
         /// let options = SslOptions::NO_SSL_MASK & !SslOptions::NO_TLSV1_2;
         /// ```
-        #[cfg(ossl102)]
+        #[cfg(ossl110)]
         const NO_SSL_MASK = ffi::SSL_OP_NO_SSL_MASK as SslOptionsRepr;
 
         /// Disallow all renegotiation in TLSv1.2 and earlier.
@@ -817,9 +815,9 @@ impl SslContextBuilder {
 
     /// Sets a custom certificate store for verifying peer certificates.
     ///
-    /// Requires OpenSSL 1.0.2 or newer.
+    /// Requires OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_CTX_set0_verify_cert_store)]
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn set_verify_cert_store(&mut self, cert_store: X509Store) -> Result<(), ErrorStack> {
         unsafe {
             let ptr = cert_store.as_ptr();
@@ -892,27 +890,6 @@ impl SslContextBuilder {
     #[corresponds(SSL_CTX_set_tmp_ecdh)]
     pub fn set_tmp_ecdh(&mut self, key: &EcKeyRef<Params>) -> Result<(), ErrorStack> {
         unsafe { cvt(ffi::SSL_CTX_set_tmp_ecdh(self.as_ptr(), key.as_ptr()) as c_int).map(|_| ()) }
-    }
-
-    /// Sets the callback which will generate parameters to be used during ephemeral elliptic curve
-    /// Diffie-Hellman key exchange.
-    ///
-    /// The callback is provided with a reference to the `Ssl` for the session, as well as a boolean
-    /// indicating if the selected cipher is export-grade, and the key length. The export and key
-    /// length options are archaic and should be ignored in almost all cases.
-    ///
-    /// Requires OpenSSL 1.0.2.
-    #[corresponds(SSL_CTX_set_tmp_ecdh_callback)]
-    #[cfg(all(ossl102, not(ossl110)))]
-    #[deprecated(note = "this function leaks memory and does not exist on newer OpenSSL versions")]
-    pub fn set_tmp_ecdh_callback<F>(&mut self, callback: F)
-    where
-        F: Fn(&mut SslRef, bool, u32) -> Result<EcKey<Params>, ErrorStack> + 'static + Sync + Send,
-    {
-        unsafe {
-            self.set_ex_data(SslContext::cached_ex_index::<F>(), callback);
-            ffi::SSL_CTX_set_tmp_ecdh_callback__fixed_rust(self.as_ptr(), Some(raw_tmp_ecdh::<F>));
-        }
     }
 
     /// Use the default locations of trusted certificates for verification.
@@ -1123,9 +1100,9 @@ impl SslContextBuilder {
 
     /// Enables ECDHE key exchange with an automatically chosen curve list.
     ///
-    /// Requires OpenSSL 1.0.2.
+    /// Requires LibreSSL.
     #[corresponds(SSL_CTX_set_ecdh_auto)]
-    #[cfg(any(libressl, all(ossl102, not(ossl110))))]
+    #[cfg(libressl)]
     pub fn set_ecdh_auto(&mut self, onoff: bool) -> Result<(), ErrorStack> {
         unsafe { cvt(ffi::SSL_CTX_set_ecdh_auto(self.as_ptr(), onoff as c_int)).map(|_| ()) }
     }
@@ -1726,9 +1703,9 @@ impl SslContextBuilder {
 
     /// Sets the context's supported signature algorithms.
     ///
-    /// Requires OpenSSL 1.0.2 or newer.
+    /// Requires OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_CTX_set1_sigalgs_list)]
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn set_sigalgs_list(&mut self, sigalgs: &str) -> Result<(), ErrorStack> {
         let sigalgs = CString::new(sigalgs).unwrap();
         unsafe {
@@ -1859,9 +1836,9 @@ impl SslContext {
 impl SslContextRef {
     /// Returns the certificate associated with this `SslContext`, if present.
     ///
-    /// Requires LibreSSL or OpenSSL 1.0.2 or newer.
+    /// Requires LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_CTX_get0_certificate)]
-    #[cfg(any(ossl102, libressl))]
+    #[cfg(any(ossl110, libressl))]
     pub fn certificate(&self) -> Option<&X509Ref> {
         unsafe {
             let ptr = ffi::SSL_CTX_get0_certificate(self.as_ptr());
@@ -1871,9 +1848,9 @@ impl SslContextRef {
 
     /// Returns the private key associated with this `SslContext`, if present.
     ///
-    /// Requires OpenSSL 1.0.2 or newer or LibreSSL.
+    /// Requires OpenSSL 1.1.0 or newer or LibreSSL.
     #[corresponds(SSL_CTX_get0_privatekey)]
-    #[cfg(any(ossl102, libressl))]
+    #[cfg(any(ossl110, libressl))]
     pub fn private_key(&self) -> Option<&PKeyRef<Private>> {
         unsafe {
             let ptr = ffi::SSL_CTX_get0_privatekey(self.as_ptr());
@@ -2469,30 +2446,13 @@ impl SslRef {
         unsafe { cvt(ffi::SSL_set_tmp_ecdh(self.as_ptr(), key.as_ptr()) as c_int).map(|_| ()) }
     }
 
-    /// Like [`SslContextBuilder::set_tmp_ecdh_callback`].
-    ///
-    /// Requires OpenSSL 1.0.2.
-    #[corresponds(SSL_set_tmp_ecdh_callback)]
-    #[cfg(all(ossl102, not(ossl110)))]
-    #[deprecated(note = "this function leaks memory and does not exist on newer OpenSSL versions")]
-    pub fn set_tmp_ecdh_callback<F>(&mut self, callback: F)
-    where
-        F: Fn(&mut SslRef, bool, u32) -> Result<EcKey<Params>, ErrorStack> + 'static + Sync + Send,
-    {
-        unsafe {
-            // this needs to be in an Arc since the callback can register a new callback!
-            self.set_ex_data(Ssl::cached_ex_index(), Arc::new(callback));
-            ffi::SSL_set_tmp_ecdh_callback__fixed_rust(self.as_ptr(), Some(raw_tmp_ecdh_ssl::<F>));
-        }
-    }
-
     /// Like [`SslContextBuilder::set_ecdh_auto`].
     ///
-    /// Requires OpenSSL 1.0.2 or LibreSSL.
+    /// Requires LibreSSL.
     ///
     /// [`SslContextBuilder::set_tmp_ecdh`]: struct.SslContextBuilder.html#method.set_tmp_ecdh
     #[corresponds(SSL_set_ecdh_auto)]
-    #[cfg(any(all(ossl102, not(ossl110)), libressl))]
+    #[cfg(libressl)]
     pub fn set_ecdh_auto(&mut self, onoff: bool) -> Result<(), ErrorStack> {
         unsafe { cvt(ffi::SSL_set_ecdh_auto(self.as_ptr(), onoff as c_int)).map(|_| ()) }
     }
@@ -3244,7 +3204,7 @@ impl SslRef {
     }
 
     #[corresponds(SSL_add0_chain_cert)]
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn add_chain_cert(&mut self, chain: X509) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::SSL_add0_chain_cert(self.as_ptr(), chain.as_ptr()) as c_int).map(|_| ())?;
@@ -3415,7 +3375,7 @@ impl SslRef {
 
     /// Set the certificate store used for certificate verification
     #[corresponds(SSL_set_cert_store)]
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn set_verify_cert_store(&mut self, cert_store: X509Store) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::SSL_set0_verify_cert_store(self.as_ptr(), cert_store.as_ptr()) as c_int)?;

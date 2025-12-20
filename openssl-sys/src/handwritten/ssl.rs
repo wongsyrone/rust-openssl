@@ -341,7 +341,7 @@ extern "C" {
         parse_arg: *mut c_void,
     ) -> c_int;
 
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn SSL_extension_supported(ext_type: c_uint) -> c_int;
 }
 
@@ -659,7 +659,7 @@ cfg_if! {
 
             pub fn DTLSv1_method() -> *const SSL_METHOD;
 
-            #[cfg(ossl102)]
+            #[cfg(ossl110)]
             pub fn DTLSv1_2_method() -> *const SSL_METHOD;
         }
     }

@@ -334,7 +334,7 @@ extern "C" {
     pub fn EVP_aes_128_ofb() -> *const EVP_CIPHER;
     #[cfg(ossl110)]
     pub fn EVP_aes_128_ocb() -> *const EVP_CIPHER;
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn EVP_aes_128_wrap() -> *const EVP_CIPHER;
     #[cfg(ossl110)]
     pub fn EVP_aes_128_wrap_pad() -> *const EVP_CIPHER;
@@ -349,7 +349,7 @@ extern "C" {
     pub fn EVP_aes_192_ofb() -> *const EVP_CIPHER;
     #[cfg(ossl110)]
     pub fn EVP_aes_192_ocb() -> *const EVP_CIPHER;
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn EVP_aes_192_wrap() -> *const EVP_CIPHER;
     #[cfg(ossl110)]
     pub fn EVP_aes_192_wrap_pad() -> *const EVP_CIPHER;
@@ -365,7 +365,7 @@ extern "C" {
     pub fn EVP_aes_256_ofb() -> *const EVP_CIPHER;
     #[cfg(ossl110)]
     pub fn EVP_aes_256_ocb() -> *const EVP_CIPHER;
-    #[cfg(ossl102)]
+    #[cfg(ossl110)]
     pub fn EVP_aes_256_wrap() -> *const EVP_CIPHER;
     #[cfg(ossl110)]
     pub fn EVP_aes_256_wrap_pad() -> *const EVP_CIPHER;
