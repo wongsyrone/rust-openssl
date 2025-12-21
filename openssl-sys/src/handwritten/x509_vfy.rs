@@ -1,7 +1,7 @@
 use super::super::*;
 use libc::*;
 
-#[cfg(any(libressl, all(ossl102, not(ossl110))))]
+#[cfg(libressl)]
 pub enum X509_VERIFY_PARAM_ID {}
 
 extern "C" {
