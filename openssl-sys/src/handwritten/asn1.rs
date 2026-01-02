@@ -2,6 +2,7 @@ use super::super::*;
 use libc::*;
 
 #[repr(C)]
+#[cfg(not(libressl430))]
 pub struct ASN1_ENCODING {
     pub enc: *mut c_uchar,
     pub len: c_long,
