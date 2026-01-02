@@ -1,4 +1,3 @@
-use cfg_if::cfg_if;
 use foreign_types::ForeignType;
 use foreign_types::ForeignTypeRef;
 #[cfg(any(ossl111, not(osslconf = "OPENSSL_NO_PSK")))]
@@ -330,17 +329,9 @@ pub unsafe extern "C" fn raw_remove_session<F>(
     callback(ctx, session)
 }
 
-cfg_if! {
-    if #[cfg(any(ossl110, libressl, boringssl, awslc))] {
-        type DataPtr = *const c_uchar;
-    } else {
-        type DataPtr = *mut c_uchar;
-    }
-}
-
 pub unsafe extern "C" fn raw_get_session<F>(
     ssl: *mut ffi::SSL,
-    data: DataPtr,
+    data: *const c_uchar,
     len: c_int,
     copy: *mut c_int,
 ) -> *mut ffi::SSL_SESSION
@@ -466,18 +457,9 @@ where
 }
 
 #[cfg(not(any(boringssl, awslc)))]
-cfg_if! {
-    if #[cfg(any(ossl110, libressl))] {
-        type CookiePtr = *const c_uchar;
-    } else {
-        type CookiePtr = *mut c_uchar;
-    }
-}
-
-#[cfg(not(any(boringssl, awslc)))]
 pub extern "C" fn raw_cookie_verify<F>(
     ssl: *mut ffi::SSL,
-    cookie: CookiePtr,
+    cookie: *const c_uchar,
     cookie_len: c_uint,
 ) -> c_int
 where

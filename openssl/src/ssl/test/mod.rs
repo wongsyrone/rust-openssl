@@ -22,7 +22,7 @@ use crate::ocsp::{OcspResponse, OcspResponseStatus};
 use crate::pkey::{Id, PKey};
 use crate::srtp::SrtpProfileId;
 use crate::ssl::test::server::Server;
-#[cfg(any(ossl110, ossl111, libressl))]
+#[cfg(any(ossl110, libressl))]
 use crate::ssl::SslVersion;
 use crate::ssl::{self, NameType, SslConnectorBuilder};
 #[cfg(ossl111)]
