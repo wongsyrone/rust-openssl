@@ -7,7 +7,6 @@
 //! Internet protocols, including SSL/TLS, which is the basis for HTTPS,
 //! the secure protocol for browsing the web.
 
-use cfg_if::cfg_if;
 use foreign_types::{ForeignType, ForeignTypeRef, Opaque};
 use libc::{c_int, c_long, c_uint, c_void};
 use std::cmp::{self, Ordering};
@@ -2398,13 +2397,7 @@ impl X509PurposeRef {
     pub fn get_by_sname(sname: &str) -> Result<c_int, ErrorStack> {
         unsafe {
             let sname = CString::new(sname).unwrap();
-            cfg_if! {
-                if #[cfg(any(ossl110, libressl, boringssl, awslc))] {
-                    let purpose = cvt_n(ffi::X509_PURPOSE_get_by_sname(sname.as_ptr() as *const _))?;
-                } else {
-                    let purpose = cvt_n(ffi::X509_PURPOSE_get_by_sname(sname.as_ptr() as *mut _))?;
-                }
-            }
+            let purpose = cvt_n(ffi::X509_PURPOSE_get_by_sname(sname.as_ptr() as *const _))?;
             Ok(purpose)
         }
     }
@@ -2430,13 +2423,7 @@ impl X509PurposeRef {
     /// - `X509_PURPOSE_TIMESTAMP_SIGN`
     pub fn purpose(&self) -> X509PurposeId {
         unsafe {
-            cfg_if! {
-                if #[cfg(any(ossl110, libressl, boringssl, awslc))] {
-                    let x509_purpose = self.as_ptr() as *const ffi::X509_PURPOSE;
-                } else {
-                    let x509_purpose = self.as_ptr() as *mut ffi::X509_PURPOSE;
-                }
-            }
+            let x509_purpose = self.as_ptr() as *const ffi::X509_PURPOSE;
             X509PurposeId::from_raw(ffi::X509_PURPOSE_get_id(x509_purpose))
         }
     }

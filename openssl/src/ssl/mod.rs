@@ -220,7 +220,7 @@ bitflags! {
         /// Disables the use of TLSv1.3.
         ///
         /// Requires AWS-LC or BoringSSL or OpenSSL 1.1.1 or newer or LibreSSL.
-        #[cfg(any(boringssl, ossl111, libressl, awslc))]
+        #[cfg(any(ossl111, boringssl, libressl, awslc))]
         const NO_TLSV1_3 = ffi::SSL_OP_NO_TLSv1_3 as SslOptionsRepr;
 
         /// Disables the use of DTLSv1.0
@@ -3290,10 +3290,7 @@ impl SslRef {
     ///
     /// A value of `None` will enable protocol versions down to the lowest version supported by
     /// OpenSSL.
-    ///
-    /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_set_min_proto_version)]
-    #[cfg(any(ossl110, libressl, boringssl, awslc))]
     pub fn set_min_proto_version(&mut self, version: Option<SslVersion>) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::SSL_set_min_proto_version(
@@ -3308,10 +3305,7 @@ impl SslRef {
     ///
     /// A value of `None` will enable protocol versions up to the highest version supported by
     /// OpenSSL.
-    ///
-    /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_set_max_proto_version)]
-    #[cfg(any(ossl110, libressl, boringssl, awslc))]
     pub fn set_max_proto_version(&mut self, version: Option<SslVersion>) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::SSL_set_max_proto_version(
