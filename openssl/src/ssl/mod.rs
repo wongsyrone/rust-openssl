@@ -358,14 +358,12 @@ impl SslMethod {
 
     /// Support all versions of the DTLS protocol, explicitly as a client.
     #[corresponds(DTLS_client_method)]
-    #[cfg(any(boringssl, ossl110, libressl, awslc))]
     pub fn dtls_client() -> SslMethod {
         unsafe { SslMethod(DTLS_client_method()) }
     }
 
     /// Support all versions of the DTLS protocol, explicitly as a server.
     #[corresponds(DTLS_server_method)]
-    #[cfg(any(boringssl, ossl110, libressl, awslc))]
     pub fn dtls_server() -> SslMethod {
         unsafe { SslMethod(DTLS_server_method()) }
     }
@@ -614,9 +612,6 @@ pub struct AlpnError(c_int);
 
 impl AlpnError {
     /// Terminate the handshake with a fatal alert.
-    ///
-    /// Requires AWS-LC or BoringSSL or OpenSSL 1.1.0 or newer.
-    #[cfg(any(ossl110, libressl, boringssl, awslc))]
     pub const ALERT_FATAL: AlpnError = AlpnError(ffi::SSL_TLSEXT_ERR_ALERT_FATAL);
 
     /// Do not select a protocol, but continue the handshake.
@@ -1139,10 +1134,7 @@ impl SslContextBuilder {
     ///
     /// A value of `None` will enable protocol versions down to the lowest version supported by
     /// OpenSSL.
-    ///
-    /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_CTX_set_min_proto_version)]
-    #[cfg(any(ossl110, libressl, boringssl, awslc))]
     pub fn set_min_proto_version(&mut self, version: Option<SslVersion>) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::SSL_CTX_set_min_proto_version(
@@ -1157,10 +1149,7 @@ impl SslContextBuilder {
     ///
     /// A value of `None` will enable protocol versions up to the highest version supported by
     /// OpenSSL.
-    ///
-    /// Requires AWS-LC or BoringSSL or LibreSSL or OpenSSL 1.1.0 or newer.
     #[corresponds(SSL_CTX_set_max_proto_version)]
-    #[cfg(any(ossl110, libressl, boringssl, awslc))]
     pub fn set_max_proto_version(&mut self, version: Option<SslVersion>) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::SSL_CTX_set_max_proto_version(
@@ -4202,57 +4191,7 @@ bitflags! {
     }
 }
 
-cfg_if! {
-    if #[cfg(any(boringssl, ossl110, libressl, awslc))] {
-        use ffi::{SSL_CTX_up_ref, SSL_SESSION_get_master_key, SSL_SESSION_up_ref, SSL_is_server};
-    } else {
-        #[allow(bad_style)]
-        pub unsafe fn SSL_CTX_up_ref(ssl: *mut ffi::SSL_CTX) -> c_int {
-            ffi::CRYPTO_add_lock(
-                &mut (*ssl).references,
-                1,
-                ffi::CRYPTO_LOCK_SSL_CTX,
-                "mod.rs\0".as_ptr() as *const _,
-                line!() as c_int,
-            );
-            0
-        }
-
-        #[allow(bad_style)]
-        pub unsafe fn SSL_SESSION_get_master_key(
-            session: *const ffi::SSL_SESSION,
-            out: *mut c_uchar,
-            mut outlen: usize,
-        ) -> usize {
-            if outlen == 0 {
-                return (*session).master_key_length as usize;
-            }
-            if outlen > (*session).master_key_length as usize {
-                outlen = (*session).master_key_length as usize;
-            }
-            ptr::copy_nonoverlapping((*session).master_key.as_ptr(), out, outlen);
-            outlen
-        }
-
-        #[allow(bad_style)]
-        pub unsafe fn SSL_is_server(s: *mut ffi::SSL) -> c_int {
-            (*s).server
-        }
-
-        #[allow(bad_style)]
-        pub unsafe fn SSL_SESSION_up_ref(ses: *mut ffi::SSL_SESSION) -> c_int {
-            ffi::CRYPTO_add_lock(
-                &mut (*ses).references,
-                1,
-                ffi::CRYPTO_LOCK_SSL_CTX,
-                "mod.rs\0".as_ptr() as *const _,
-                line!() as c_int,
-            );
-            0
-        }
-    }
-}
-
+use ffi::{SSL_CTX_up_ref, SSL_SESSION_get_master_key, SSL_SESSION_up_ref, SSL_is_server};
 cfg_if! {
     if #[cfg(ossl300)] {
         use ffi::SSL_get1_peer_certificate;
@@ -4260,16 +4199,10 @@ cfg_if! {
         use ffi::SSL_get_peer_certificate as SSL_get1_peer_certificate;
     }
 }
-cfg_if! {
-    if #[cfg(any(boringssl, ossl110, libressl, awslc))] {
-        use ffi::{TLS_method, DTLS_method, TLS_client_method, TLS_server_method, DTLS_server_method, DTLS_client_method};
-    } else {
-        use ffi::{
-            SSLv23_method as TLS_method, DTLSv1_method as DTLS_method, SSLv23_client_method as TLS_client_method,
-            SSLv23_server_method as TLS_server_method,
-        };
-    }
-}
+use ffi::{
+    DTLS_client_method, DTLS_method, DTLS_server_method, TLS_client_method, TLS_method,
+    TLS_server_method,
+};
 cfg_if! {
     if #[cfg(ossl110)] {
         unsafe fn get_new_idx(f: ffi::CRYPTO_EX_free) -> c_int {
