@@ -110,9 +110,9 @@ extern "C" {
 
 const_ptr_api! {
     extern "C" {
-        pub fn ASN1_STRING_to_UTF8(out: *mut *mut c_uchar, s: #[const_ptr_if(any(ossl110, libressl))] ASN1_STRING) -> c_int;
-        pub fn ASN1_STRING_type(x: #[const_ptr_if(any(ossl110, libressl))]  ASN1_STRING) -> c_int;
-        pub fn ASN1_generate_v3(str: #[const_ptr_if(any(ossl110, libressl))] c_char, cnf: *mut X509V3_CTX) -> *mut ASN1_TYPE;
+        pub fn ASN1_STRING_to_UTF8(out: *mut *mut c_uchar, s: *const ASN1_STRING) -> c_int;
+        pub fn ASN1_STRING_type(x: *const  ASN1_STRING) -> c_int;
+        pub fn ASN1_generate_v3(str: *const c_char, cnf: *mut X509V3_CTX) -> *mut ASN1_TYPE;
         pub fn i2d_ASN1_TYPE(a: #[const_ptr_if(ossl300)] ASN1_TYPE, pp: *mut *mut c_uchar) -> c_int;
     }
 }
