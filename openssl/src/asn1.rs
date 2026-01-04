@@ -364,9 +364,9 @@ impl Asn1Time {
 
     /// Creates a new time corresponding to the specified X509 time string.
     ///
-    /// Requires BoringSSL or OpenSSL 1.1.1 or newer.
+    /// Requires BoringSSL, AWS-LC, OpenSSL 1.1.1, LibreSSL 3.6.0, or newer.
     #[corresponds(ASN1_TIME_set_string_X509)]
-    #[cfg(any(ossl111, boringssl, awslc))]
+    #[cfg(any(ossl111, boringssl, libressl360, awslc))]
     pub fn from_str_x509(s: &str) -> Result<Asn1Time, ErrorStack> {
         unsafe {
             let s = CString::new(s).unwrap();
@@ -795,7 +795,7 @@ mod tests {
     #[test]
     fn time_from_str() {
         Asn1Time::from_str("99991231235959Z").unwrap();
-        #[cfg(ossl111)]
+        #[cfg(any(ossl111, boringssl, libressl360, awslc))]
         Asn1Time::from_str_x509("99991231235959Z").unwrap();
     }
 
