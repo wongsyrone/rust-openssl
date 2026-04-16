@@ -675,6 +675,8 @@ fn default_verify_paths() {
     let mut ctx = SslContext::builder(SslMethod::tls()).unwrap();
     ctx.set_default_verify_paths().unwrap();
     ctx.set_verify(SslVerifyMode::PEER);
+    #[cfg(ossl400)]
+    ctx.set_options(super::SslOptions::IGNORE_UNEXPECTED_EOF);
     let ctx = ctx.build();
     let s = match TcpStream::connect("google.com:443") {
         Ok(s) => s,
@@ -965,7 +967,7 @@ fn cert_store() {
 }
 
 #[test]
-#[cfg_attr(any(boringssl, awslc), ignore)]
+#[cfg_attr(any(boringssl, awslc, ossl400), ignore)]
 fn tmp_dh_callback() {
     static CALLED_BACK: AtomicBool = AtomicBool::new(false);
 
@@ -989,7 +991,7 @@ fn tmp_dh_callback() {
 }
 
 #[test]
-#[cfg_attr(any(boringssl, awslc), ignore)]
+#[cfg_attr(any(boringssl, awslc, ossl400), ignore)]
 fn tmp_dh_callback_ssl() {
     static CALLED_BACK: AtomicBool = AtomicBool::new(false);
 
