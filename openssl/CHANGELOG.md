@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+* Added the full set of `SslAlert` alert descriptions, along with `SslAlert::reason_code`, `SslAlert::from_reason_code`, and a `Display` implementation.
+
 ## [v0.10.81] - 2026-06-12
 
 ### Fixed
